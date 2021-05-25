@@ -3,8 +3,8 @@ use super::update::Update;
 
 #[derive(Clone,Debug)]
 pub struct Device{
-    services: Vec<Service>,
-    updates: Vec<Update>
+    pub services: Vec<Service>,
+    pub updates: Vec<Update>
 }
 
 impl Device{
@@ -12,7 +12,4 @@ impl Device{
         Device{services, updates}
     }
 
-    pub fn services(&self) -> &Vec<Service>{
-        &self.services
-    }
 }

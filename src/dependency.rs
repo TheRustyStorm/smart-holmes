@@ -17,8 +17,8 @@ impl Dependency{
         for service in &self.services{
             let mut is_present = false;
             for device in &self.devices{
-                for available_service in device.services(){
-                    if available_service.id() == service.id() {
+                for available_service in &device.services{
+                    if available_service.id == service.id {
                         is_present = true;
                     }
                 }
@@ -33,6 +33,6 @@ impl Dependency{
 
 impl fmt::Display for Dependency {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}\n Required: {:?}\n Given: {:?}", self.is_fullfilled(), self.services, self.devices)   
+        write!(f, "{}\n Required: {:?}\n Given: {:#?}", self.is_fullfilled(), self.services, self.devices)   
     }
 }

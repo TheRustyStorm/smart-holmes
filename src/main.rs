@@ -9,9 +9,9 @@ use dependency::Dependency;
 use rand::seq::SliceRandom;
 
 fn main() {
-    let amount_services = 100;
-    let amount_devices = 5000;
-    let amount_dependencies = 3;
+    let amount_services = 20;
+    let amount_devices = 20;
+    let amount_dependencies = 5;
     let device_per_dependency = 2;
     let service_per_dependency = 2;
     let mut services = Vec::new();
@@ -26,8 +26,16 @@ fn main() {
             .choose_multiple(&mut rand::thread_rng(), 3)
             .cloned()
             .collect();
-        let updates: Vec<Update> = Vec::new();
-        devices.push(Device::new(sample, updates));
+        let mut updates: Vec<Update> = Vec::new();
+        let update = Update::map_to_update(&sample);
+        updates.push(update);
+        for i in 0..6{
+            updates.push(Update::generate_new_update(&updates[i], &services));
+        }
+        let device = Device::new(sample, updates);
+        println!("{:#?}",device);
+        devices.push(device);
+        
     }
 
     while dependencies.len() < amount_dependencies{
