@@ -9,7 +9,7 @@ pub struct Dependency{
 }
 
 impl Dependency{
-    pub fn new<'a>(devices: Vec<Device>, services: Vec<Service>) -> Dependency{
+    pub fn new(devices: Vec<Device>, services: Vec<Service>) -> Dependency{
         Dependency{ devices, services}
     }
 

@@ -1,5 +1,4 @@
 use super::service::Service;
-use super::device::Device;
 use rand::Rng;
 
 #[derive(Clone, Debug)]
@@ -13,11 +12,11 @@ impl Update {
         Update { version, services }
     }
 
-    pub fn map_to_update(services: &Vec<Service>) -> Update{
-        Update{version: 1, services:services.clone()}
+    pub fn map_to_update(services: &[Service]) -> Update{
+        Update{version: 1, services:services.to_vec()}
     }
 
-    pub fn generate_new_update(update: &Update, services: &Vec<Service>) -> Update {
+    pub fn generate_new_update(update: &Update, services: &[Service]) -> Update {
         let version = update.version + 1;
         let mut rng = rand::thread_rng();
         let random_dice = rng.gen_range(0..6);
