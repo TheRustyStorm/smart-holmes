@@ -47,3 +47,14 @@ impl Update {
         Update::new(version, serviceset)
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_create_update(){
+        assert_eq!(1,1);
+    }
+}

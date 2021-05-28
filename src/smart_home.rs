@@ -44,37 +44,53 @@ pub struct SmartHome{
 }
 
 impl SmartHome{
-    pub fn new(config: SmartHomeConfig) -> SmartHome{
+
+    fn generate_services(service_config: &ServiceConfig) -> Vec<Service>{
         let mut services = Vec::new();
-        let mut devices = Vec::new();
-        let mut dependencies = Vec::new();
-        for i in 0..config.service_config.amount_services{
+        for i in 0..service_config.amount_services{
             services.push(Service::new(i));
         }
-    
-        for _ in 0..config.device_config.amount_devices{
-            let sample: Vec<_> = services
-                .choose_multiple(&mut rand::thread_rng(), config.device_config.services_per_device)
-                .cloned()
-                .collect();
-            let mut updates: Vec<Update> = Vec::new();
-            let update = Update::map_to_update(&sample);
-            updates.push(update);
-            for i in 0..config.update_config.amount_updates{
-                updates.push(Update::generate_new_update(&updates[i], &services));
-            }
-            let device = Device::new(sample, updates);
-            devices.push(device);
-            
+        services
+    }
+
+    fn generate_updates(update_config: &UpdateConfig, services_on_device: &[Service], services: &[Service]) -> Vec<Update>{
+        let mut updates: Vec<Update> = Vec::new();
+        let update = Update::map_to_update(&services_on_device);
+        updates.push(update);
+        for i in 0..update_config.amount_updates{
+            updates.push(Update::generate_new_update(&updates[i], &services));
         }
-    
-        while dependencies.len() < config.dependency_config.amount_dependencies{
+        updates
+    }
+
+    fn generate_device(device_config: &DeviceConfig, update_config: &UpdateConfig, services: &[Service]) -> Device{
+        let services_on_device: Vec<_> = services
+            .choose_multiple(&mut rand::thread_rng(), device_config.services_per_device)
+            .cloned()
+            .collect();
+        let updates = SmartHome::generate_updates(update_config, &services_on_device, services);
+        let device = Device::new(services_on_device, updates);
+        device
+    }
+
+    fn generate_devices(device_config: &DeviceConfig, update_config: &UpdateConfig, services: &[Service]) -> Vec<Device>{
+        let mut devices = Vec::new();
+        for _ in 0..device_config.amount_devices{
+            let device = SmartHome::generate_device(&device_config, &update_config, services);
+            devices.push(device);   
+        }
+        devices
+    }
+
+    fn generate_dependencies(dependency_config: &DependencyConfig, devices: &[Device], services: &[Service]) -> Vec<Dependency>{
+        let mut dependencies = Vec::new();
+        while dependencies.len() < dependency_config.amount_dependencies{
             let dependency_devices: Vec<_> = devices
-                .choose_multiple(&mut rand::thread_rng(), config.dependency_config.device_per_dependency)
+                .choose_multiple(&mut rand::thread_rng(), dependency_config.device_per_dependency)
                 .cloned()
                 .collect();
             let dependency_services: Vec<_> = services
-                .choose_multiple(&mut rand::thread_rng(), config.dependency_config.service_per_dependency)
+                .choose_multiple(&mut rand::thread_rng(), dependency_config.service_per_dependency)
                 .cloned()
                 .collect();
             let dependency = Dependency::new(dependency_devices, dependency_services);
@@ -82,6 +98,13 @@ impl SmartHome{
                 dependencies.push(dependency);
             }
         }
+        dependencies
+    }
+
+    pub fn new(config: SmartHomeConfig) -> SmartHome{
+        let services = SmartHome::generate_services(&config.service_config);
+        let devices = SmartHome::generate_devices(&config.device_config, &config.update_config, &services);
+        let dependencies = SmartHome::generate_dependencies(&config.dependency_config, &devices, &services);
         SmartHome{services, devices, dependencies}
     }
 }

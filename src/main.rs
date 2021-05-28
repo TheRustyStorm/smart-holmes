@@ -12,8 +12,6 @@ fn main() {
     let update_config = UpdateConfig{amount_updates: 6};
 
     let smart_home_config = SmartHomeConfig::new(service_config, device_config, dependency_config, update_config);
-    let smart_home = SmartHome::new(smart_home_config);
-    println!("{:?}",smart_home);
-    
-
+    let _smart_home = SmartHome::new(smart_home_config);
+    //println!("{:?}",smart_home);
 }
