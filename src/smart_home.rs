@@ -63,7 +63,7 @@ impl SmartHome{
         updates
     }
 
-    fn generate_device(device_config: &DeviceConfig, update_config: &UpdateConfig, services: &[Service]) -> Device{
+    pub fn generate_device(device_config: &DeviceConfig, update_config: &UpdateConfig, services: &[Service]) -> Device{
         let services_on_device: Vec<_> = services
             .choose_multiple(&mut rand::thread_rng(), device_config.services_per_device)
             .cloned()
