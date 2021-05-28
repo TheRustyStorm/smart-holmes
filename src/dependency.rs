@@ -3,6 +3,7 @@ use super::service::Service;
 
 use std::fmt;
 
+#[derive(Debug)]
 pub struct Dependency{
     devices: Vec<Device>,
     services: Vec<Service>,
