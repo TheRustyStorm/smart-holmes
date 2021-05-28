@@ -5,6 +5,13 @@ authors = ["Peter <peter.zdankin@uni-due.de>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "smart_holmes"
+path = "src/lib.rs"
+
+[[bin]]
+name = "smart_holmes_binary"
+path = "src/bin/main.rs"
 
 [dependencies]
 rand = "*"

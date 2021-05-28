@@ -45,7 +45,7 @@ pub struct SmartHome{
 
 impl SmartHome{
 
-    fn generate_services(service_config: &ServiceConfig) -> Vec<Service>{
+    pub fn generate_services(service_config: &ServiceConfig) -> Vec<Service>{
         let mut services = Vec::new();
         for i in 0..service_config.amount_services{
             services.push(Service::new(i));
