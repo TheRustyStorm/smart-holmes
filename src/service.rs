@@ -1,13 +1,13 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone,Copy,Debug)]
-pub struct Service{
-    pub id: usize
+#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
+pub struct Service {
+    pub id: usize,
 }
 
-impl Service{
-    pub fn new(id: usize) -> Service{
-        Service{id}
+impl Service {
+    pub fn new(id: usize) -> Service {
+        Service { id }
     }
 }
 
