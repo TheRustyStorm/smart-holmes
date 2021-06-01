@@ -17,10 +17,8 @@ impl Update {
     }
 
     fn remove_service(service_set: &mut Vec<Service>, service_id: usize){
-        if service_set.len() > 1 { 
-            if service_id < service_set.len(){
-                service_set.remove(service_id);
-            }
+        if service_set.len() > 1 && service_id < service_set.len(){
+            service_set.remove(service_id);
         }
     }
 
@@ -61,7 +59,7 @@ fn update_creator() -> Update{
     let device_config = DeviceConfig{amount_devices: 10, services_per_device: 3};
     let update_config = UpdateConfig{amount_updates: 6};
     let services = SmartHome::generate_services(&service_config);
-    let device = SmartHome::generate_device(&device_config,&update_config, &services);
+    let device = SmartHome::generate_device(0, &device_config,&update_config, &services);
     
     Update::map_to_update(&device.services)
 }

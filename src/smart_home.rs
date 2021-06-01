@@ -63,20 +63,19 @@ impl SmartHome{
         updates
     }
 
-    pub fn generate_device(device_config: &DeviceConfig, update_config: &UpdateConfig, services: &[Service]) -> Device{
+    pub fn generate_device(id: usize, device_config: &DeviceConfig, update_config: &UpdateConfig, services: &[Service]) -> Device{
         let services_on_device: Vec<_> = services
             .choose_multiple(&mut rand::thread_rng(), device_config.services_per_device)
             .cloned()
             .collect();
         let updates = SmartHome::generate_updates(update_config, &services_on_device, services);
-        let device = Device::new(services_on_device, updates);
-        device
+        Device::new(services_on_device, updates, id)
     }
 
     fn generate_devices(device_config: &DeviceConfig, update_config: &UpdateConfig, services: &[Service]) -> Vec<Device>{
         let mut devices = Vec::new();
-        for _ in 0..device_config.amount_devices{
-            let device = SmartHome::generate_device(&device_config, &update_config, services);
+        for id in 0..device_config.amount_devices{
+            let device = SmartHome::generate_device(id, &device_config, &update_config, services);
             devices.push(device);   
         }
         devices
@@ -93,7 +92,7 @@ impl SmartHome{
                 .choose_multiple(&mut rand::thread_rng(), dependency_config.service_per_dependency)
                 .cloned()
                 .collect();
-            let dependency = Dependency::new(dependency_devices, dependency_services);
+            let dependency = Dependency::new(dependency_devices, dependency_services, dependencies.len());
             if dependency.is_fullfilled(){
                 dependencies.push(dependency);
             }

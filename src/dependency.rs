@@ -5,13 +5,14 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct Dependency{
-    devices: Vec<Device>,
+    pub devices: Vec<Device>,
     services: Vec<Service>,
+    pub index: usize,
 }
 
 impl Dependency{
-    pub fn new(devices: Vec<Device>, services: Vec<Service>) -> Dependency{
-        Dependency{ devices, services}
+    pub fn new(devices: Vec<Device>, services: Vec<Service>, index: usize) -> Dependency{
+        Dependency{ devices, services, index}
     }
 
     pub fn is_fullfilled(&self) -> bool{
