@@ -1,7 +1,8 @@
 use super::service::Service;
 use super::update::Update;
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone,Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Device{
     pub services: Vec<Service>,
     pub updates: Vec<Update>,

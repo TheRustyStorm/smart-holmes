@@ -1,8 +1,13 @@
+extern crate serde;
 use super::service::Service;
 use super::device::Device;
 use super::dependency::Dependency;
 use super::update::Update;
 use rand::seq::SliceRandom;
+use serde::{Serialize, Deserialize};
+use std::io::BufWriter;
+use std::io::BufReader;
+use std::fs::File;
 
 pub struct ServiceConfig{
     pub amount_services: usize,
@@ -36,7 +41,7 @@ impl SmartHomeConfig{
     }
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SmartHome{
     pub services: Vec<Service>,
     pub devices: Vec<Device>,
@@ -51,6 +56,18 @@ impl SmartHome{
             services.push(Service::new(i));
         }
         services
+    }
+
+    pub fn save(&self, filename: String){
+        let writer = BufWriter::new(File::create(filename).unwrap());
+        serde_json::to_writer_pretty(writer, &self).unwrap();
+    }
+
+    pub fn load(filename: String) -> SmartHome{
+        let f = File::open(filename).unwrap();
+        let reader = BufReader::new(f);
+        let smart_home: SmartHome = serde_json::from_reader(reader).unwrap();
+        smart_home
     }
 
     fn generate_updates(update_config: &UpdateConfig, services_on_device: &[Service], services: &[Service]) -> Vec<Update>{

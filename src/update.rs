@@ -1,7 +1,8 @@
 use super::service::Service;
+use serde::{Serialize, Deserialize};
 use rand::Rng;
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Update {
     pub version: usize,
     pub services: Vec<Service>,

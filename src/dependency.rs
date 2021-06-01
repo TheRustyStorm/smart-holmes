@@ -1,9 +1,10 @@
 use super::device::Device;
 use super::service::Service;
+use serde::{Serialize, Deserialize};
 
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Dependency{
     pub devices: Vec<Device>,
     services: Vec<Service>,

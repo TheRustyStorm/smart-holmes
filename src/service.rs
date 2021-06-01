@@ -1,6 +1,6 @@
+use serde::{Serialize, Deserialize};
 
-
-#[derive(Clone,Copy,Debug)]
+#[derive(Serialize, Deserialize, Clone,Copy,Debug)]
 pub struct Service{
     pub id: usize
 }
