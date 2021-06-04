@@ -1,7 +1,7 @@
 use super::device::Device;
 use super::service::Service;
 use serde::{Deserialize, Serialize};
-
+use std::collections::HashSet;
 use std::fmt;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -18,6 +18,15 @@ impl Dependency {
             services,
             index,
         }
+    }
+
+    pub fn is_fullfilled_with_services(&self, services: HashSet<Service>) -> bool{
+        for service in &self.services{
+            if services.get(service) == None{
+                return false;
+            }
+        }
+        true
     }
 
     pub fn is_fullfilled(&self) -> bool {

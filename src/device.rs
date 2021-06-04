@@ -20,6 +20,10 @@ impl Device {
             color: id,
         }
     }
+
+    pub fn remove_irrelevant_updates(&mut self) {
+        self.updates.dedup();
+    }
 }
 
 impl PartialOrd for Device {

@@ -176,8 +176,7 @@ impl SmartHome {
             "Generating {} dependencies",
             config.dependency_config.amount_dependencies
         );
-        let dependencies =
-            SmartHome::generate_dependencies(&config.dependency_config, &devices);
+        let dependencies = SmartHome::generate_dependencies(&config.dependency_config, &devices);
         SmartHome {
             services,
             devices,

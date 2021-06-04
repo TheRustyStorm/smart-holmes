@@ -8,6 +8,13 @@ pub struct Update {
     pub services: Vec<Service>,
 }
 
+impl PartialEq for Update {
+    fn eq(&self, other: &Self) -> bool {
+        let matching = self.services.iter().zip(other.services.iter()).filter(|&(a, b)| a == b).count();
+        matching == self.services.len() && matching == other.services.len()
+    }
+}
+
 impl Update {
     pub fn new(version: usize, services: Vec<Service>) -> Update {
         Update { version, services }

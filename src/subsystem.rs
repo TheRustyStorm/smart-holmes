@@ -1,10 +1,29 @@
 use crate::device::Device;
 use crate::smart_home::SmartHome;
+use crate::dependency::Dependency;
+use crate::service::Service;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt;
 
+#[derive(Debug, Clone)]
 pub struct Subsystem {
     pub devices: Vec<Device>,
+}
+
+impl fmt::Display for Subsystem {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Write strictly the first element into the supplied output
+        // stream: `f`. Returns `fmt::Result` which indicates whether the
+        // operation succeeded or failed. Note that `write!` uses syntax which
+        // is very similar to `println!`.
+        write!(f, "{} ", self.devices.len());
+        for device in &self.devices{
+            write!(f, "{} ", device.id);
+        }
+        Ok(())
+    }
 }
 
 impl Subsystem {
@@ -32,7 +51,7 @@ impl Subsystem {
         set.len()
     }
 
-    fn subsystem_color_set(smart_home: &SmartHome) -> HashSet<usize> {
+    fn _subsystem_color_set(smart_home: &SmartHome) -> HashSet<usize> {
         let mut set = HashSet::new();
         for device in &smart_home.devices {
             set.insert(device.color);
@@ -72,36 +91,73 @@ impl Subsystem {
         );
     }
 
-    pub fn find_sorted_subsystems(smart_home: &mut SmartHome) -> Vec<Subsystem> {
-        let mut subsystems: Vec<Subsystem> = Vec::new();
-        Subsystem::color_devices(smart_home);
-        let subsystem_colors = Subsystem::subsystem_color_set(smart_home);
-        let mut devices = smart_home.devices.clone();
-        devices.sort_by(|a,b| a.partial_cmp(b).unwrap());
-        let sorted_devices = devices;
-        
-        let there_be_rock = 0;
-
-
-        subsystems.push(Subsystem::new(sorted_devices));
-        subsystems
-    }
-
     pub fn find_subsystems(smart_home: &mut SmartHome) -> Vec<Subsystem> {
         let mut subsystems: Vec<Subsystem> = Vec::new();
         Subsystem::color_devices(smart_home);
-        let subsystem_colors = Subsystem::subsystem_color_set(smart_home);
-        for color in &subsystem_colors {
-            let mut devices: Vec<Device> = Vec::new();
-            for device in &smart_home.devices {
-                if device.color == *color {
-                    devices.push(device.clone());
-                }
+        let mut devices = smart_home.devices.clone();
+        devices.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let mut sorted_devices = devices;
+        let mut color;
+        while !sorted_devices.is_empty() {
+            color = sorted_devices[0].color;
+            let mut color_vec = Vec::new();
+            while !sorted_devices.is_empty() && color == sorted_devices[0].color {
+                color_vec.push(sorted_devices.remove(0));
             }
-            //println!("Color {} \t with {} \telements", color, devices.len());
-            subsystems.push(Subsystem::new(devices));
+            subsystems.push(Subsystem::new(color_vec));
         }
         subsystems
+    }
+
+    pub fn partial_cartesian<T: Clone>(a: Vec<Vec<T>>, b: Vec<T>) -> Vec<Vec<T>> {
+        a.into_iter().flat_map(|xs| {
+            b.iter().cloned().map(|y| {
+                let mut vec = xs.clone();
+                vec.push(y);
+                vec
+            }).collect::<Vec<_>>()
+        }).collect()
+    }
+    
+    pub fn cartesian_product<T: Clone>(lists: &Vec<Vec<T>>) -> Vec<Vec<T>> {
+        match lists.split_first() {
+            Some((first, rest)) => {
+                let init: Vec<Vec<T>> = first.iter().cloned().map(|n| vec![n]).collect();
+    
+                rest.iter().cloned().fold(init, |vec, list| {
+                    Subsystem::partial_cartesian(vec, list)
+                })
+            },
+            None => {
+                vec![]
+            }
+        }
+    }
+    
+    pub fn print_cartesian_product(lists: &Vec<Vec<Service>>) {
+        let mut products = Subsystem::cartesian_product(&lists);
+    
+        for product in products.iter_mut() {
+            product.sort();
+            product.dedup();
+            let product_str: Vec<_> = product.iter().map(|n| format!("{}", n)).collect();
+            let line = product_str.join(" ");
+            println!("{}", line);
+        }
+    }
+    
+    pub fn find_configurations(subsystem: Subsystem) {
+        let mut configurations = Vec::new();
+        for device in &subsystem.devices{
+            let mut service_sets = Vec::new();
+            service_sets.push(device.services.clone());
+            for update in &device.updates{
+                service_sets.push(update.services.clone());
+            }
+            configurations.push(service_sets);
+        }
+        Subsystem::print_cartesian_product(&configurations[0]);
+        
     }
 }
 
@@ -109,8 +165,7 @@ impl Subsystem {
 mod tests {
     use crate::smart_home::*;
     use crate::subsystem::*;
-    use crate::update::*;
-
+    
     fn setup_hashmap() -> HashMap<usize, Vec<usize>> {
         let service_config = ServiceConfig {
             amount_services: 10,
@@ -145,6 +200,6 @@ mod tests {
 
     #[test]
     fn test_entries() {
-        let hashmap = setup_hashmap();
+        let _ = setup_hashmap();
     }
 }

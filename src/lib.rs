@@ -4,3 +4,4 @@ pub mod service;
 pub mod smart_home;
 pub mod subsystem;
 pub mod update;
+pub mod update_configuration;
