@@ -11,6 +11,14 @@ use std::fs::File;
 use std::io::BufReader;
 use std::io::BufWriter;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SmartHome {
+    pub services: Vec<Service>,
+    pub dependencies: Vec<Dependency>,
+    pub devices: Vec<Device>,
+}
+
+
 pub struct ServiceConfig {
     pub amount_services: usize,
 }
@@ -53,13 +61,9 @@ impl SmartHomeConfig {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SmartHome {
-    pub services: Vec<Service>,
-    pub dependencies: Vec<Dependency>,
-    pub devices: Vec<Device>,
-}
 
+
+//Methods to create a smart home
 impl SmartHome {
     pub fn generate_services(service_config: &ServiceConfig) -> Vec<Service> {
         let mut services = Vec::new();
@@ -122,6 +126,56 @@ impl SmartHome {
         devices
     }
 
+    fn generate_dependencies(
+        dependency_config: &DependencyConfig,
+        devices: &[Device],
+    ) -> Vec<Dependency> {
+        let mut dependencies = Vec::new();
+        for _ in 0..dependency_config.amount_dependencies {
+            let x = rand::seq::index::sample(
+                &mut rand::thread_rng(),
+                devices.len(),
+                dependency_config.device_per_dependency,
+            );
+    
+            let mut dependency_device_indices: Vec<usize> = Vec::new();
+            for i in x {
+                dependency_device_indices.push(i);
+            }
+    
+            let mut service_ids_of_devices = HashSet::new();
+            for device_index in &dependency_device_indices {
+                let device = devices.get(*device_index).unwrap();
+                for service in &device.services {
+                    service_ids_of_devices.insert(service);
+                }
+            }
+            let mut services_of_devices: Vec<usize> = Vec::new();
+            for i in service_ids_of_devices {
+                services_of_devices.push(*i);
+            }
+            let dependency_services: Vec<_> = services_of_devices
+                .choose_multiple(
+                    &mut rand::thread_rng(),
+                    dependency_config.service_per_dependency,
+                )
+                .cloned()
+                .collect();
+            let dependency = Dependency::new(
+                dependency_device_indices,
+                dependency_services,
+                dependencies.len(),
+            );
+            if dependency.is_fullfilled(devices) {
+                dependencies.push(dependency);
+            } else {
+                println!("NOT FULFILLED");
+            }
+        }
+        dependencies
+    }
+    
+
     pub fn new(config: SmartHomeConfig) -> SmartHome {
         println!(
             "Generating {} services",
@@ -131,7 +185,7 @@ impl SmartHome {
         println!("Generating {} devices", config.device_config.amount_devices);
         let devices =
             SmartHome::generate_devices(&config.device_config, &config.update_config, &services);
-        let dependencies = generate_dependencies(&config.dependency_config, &devices);
+        let dependencies = SmartHome::generate_dependencies(&config.dependency_config, &devices);
         SmartHome {
             services,
             dependencies,
@@ -140,54 +194,6 @@ impl SmartHome {
     }
 }
 
-pub fn generate_dependencies(
-    dependency_config: &DependencyConfig,
-    devices: &[Device],
-) -> Vec<Dependency> {
-    let mut dependencies = Vec::new();
-    for _ in 0..dependency_config.amount_dependencies {
-        let x = rand::seq::index::sample(
-            &mut rand::thread_rng(),
-            devices.len(),
-            dependency_config.device_per_dependency,
-        );
-
-        let mut dependency_device_indices: Vec<usize> = Vec::new();
-        for i in x {
-            dependency_device_indices.push(i);
-        }
-
-        let mut service_ids_of_devices = HashSet::new();
-        for device_index in &dependency_device_indices {
-            let device = devices.get(*device_index).unwrap();
-            for service in &device.services {
-                service_ids_of_devices.insert(service);
-            }
-        }
-        let mut services_of_devices: Vec<usize> = Vec::new();
-        for i in service_ids_of_devices {
-            services_of_devices.push(*i);
-        }
-        let dependency_services: Vec<_> = services_of_devices
-            .choose_multiple(
-                &mut rand::thread_rng(),
-                dependency_config.service_per_dependency,
-            )
-            .cloned()
-            .collect();
-        let dependency = Dependency::new(
-            dependency_device_indices,
-            dependency_services,
-            dependencies.len(),
-        );
-        if dependency.is_fullfilled(devices) {
-            dependencies.push(dependency);
-        } else {
-            println!("NOT FULFILLED");
-        }
-    }
-    dependencies
-}
 
 impl SmartHome {
     pub fn get_device(&self, index: usize) -> &Device {
