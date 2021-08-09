@@ -10,7 +10,12 @@ pub struct Update {
 
 impl PartialEq for Update {
     fn eq(&self, other: &Self) -> bool {
-        let matching = self.services.iter().zip(other.services.iter()).filter(|&(a, b)| a == b).count();
+        let matching = self
+            .services
+            .iter()
+            .zip(other.services.iter())
+            .filter(|&(a, b)| a == b)
+            .count();
         matching == self.services.len() && matching == other.services.len()
     }
 }
@@ -34,12 +39,7 @@ impl Update {
     }
 
     fn add_service(service_set: &mut Vec<Service>, new_service_id: usize) {
-        if service_set
-            .iter()
-            .filter(|x| **x == new_service_id)
-            .count()
-            == 0
-        {
+        if service_set.iter().filter(|x| **x == new_service_id).count() == 0 {
             service_set.push(new_service_id);
         }
     }

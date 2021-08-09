@@ -25,11 +25,16 @@ impl Device {
         self.updates.dedup();
     }
 
-    pub fn update(&mut self, target_version: usize){
-        let target_update = self.updates.iter().filter(|n| n.version == target_version).next();
-        if let Some(target_update) = target_update{
+    pub fn update(&mut self, target_version: usize) {
+        let target_update = self.updates.iter().find(|n| n.version == target_version);
+        if let Some(target_update) = target_update {
             self.services = target_update.services.clone();
-            self.updates = self.updates.clone().into_iter().filter(|n| n.version >= target_version).collect();
+            self.updates = self
+                .updates
+                .clone()
+                .into_iter()
+                .filter(|n| n.version >= target_version)
+                .collect();
         }
     }
 }

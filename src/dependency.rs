@@ -2,17 +2,16 @@ use super::device::Device;
 use super::service::Service;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use std::cell::RefCell;
 use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Dependency {
     pub device_indices: Vec<usize>,
-    services: Vec<Service>,
+    pub services: Vec<Service>,
     pub index: usize,
 }
 
-impl Dependency{
+impl Dependency {
     pub fn new(device_indices: Vec<usize>, services: Vec<Service>, index: usize) -> Dependency {
         Dependency {
             device_indices,
@@ -21,16 +20,16 @@ impl Dependency{
         }
     }
 
-    pub fn is_fullfilled_with_services(&self, services: HashSet<Service>) -> bool{
-        for service in &self.services{
-            if services.get(service) == None{
+    pub fn is_fullfilled_with_services(&self, services: HashSet<Service>) -> bool {
+        for service in &self.services {
+            if services.get(service) == None {
                 return false;
             }
         }
         true
     }
 
-    pub fn is_fullfilled(&self, devices: &Vec<Device>) -> bool {
+    pub fn is_fullfilled(&self, devices: &[Device]) -> bool {
         for service in &self.services {
             let mut is_present = false;
             for index in &self.device_indices {
@@ -47,7 +46,6 @@ impl Dependency{
         }
         true
     }
-
 }
 
 impl fmt::Display for Dependency {
@@ -55,8 +53,7 @@ impl fmt::Display for Dependency {
         write!(
             f,
             "\n Required: {:?}\n Given: {:#?}",
-            self.services,
-            self.device_indices
+            self.services, self.device_indices
         )
     }
 }
