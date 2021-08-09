@@ -1,6 +1,7 @@
 use crate::device::Device;
 use crate::service::Service;
 use crate::smart_home::SmartHome;
+use crate::update::Update;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt;
@@ -8,6 +9,18 @@ use std::fmt;
 #[derive(Debug, Clone)]
 pub struct Subsystem {
     pub devices: Vec<Device>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ConfigurationState{
+    pub device_id: usize,
+    pub updates: Vec<Update>
+}
+
+impl ConfigurationState{
+    fn new(device_id: usize, updates: Vec<Update>) -> ConfigurationState{
+        ConfigurationState{device_id, updates}
+    }
 }
 
 impl fmt::Display for Subsystem {
@@ -134,7 +147,7 @@ impl Subsystem {
 
                 rest.iter()
                     .cloned()
-                    .fold(init, |vec, list| Subsystem::partial_cartesian(vec, list))
+                    .fold(init, Subsystem::partial_cartesian)
             }
             None => {
                 vec![]
@@ -152,7 +165,7 @@ impl Subsystem {
         }
     }
 
-    pub fn find_configurations(subsystem: Subsystem) {
+    pub fn find_configurations(subsystem: &Subsystem) -> Vec<Vec<Vec<usize>>>{
         let mut configurations = Vec::new();
         for device in &subsystem.devices {
             let mut service_sets = vec![device.services.clone()];
@@ -161,8 +174,9 @@ impl Subsystem {
             }
             configurations.push(service_sets);
         }
-        let _products = Subsystem::cartesian_product(configurations);
+        Subsystem::cartesian_product(configurations)
     }
+
 }
 
 #[cfg(test)]

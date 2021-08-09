@@ -5,3 +5,4 @@ pub mod smart_home;
 pub mod subsystem;
 pub mod update;
 pub mod update_configuration;
+pub mod cartesian_iterator;

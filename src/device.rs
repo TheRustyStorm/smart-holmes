@@ -9,6 +9,7 @@ pub struct Device {
     pub updates: Vec<Update>,
     pub id: usize,
     pub color: usize,
+    pub version: usize,
 }
 
 impl Device {
@@ -18,6 +19,7 @@ impl Device {
             updates,
             id,
             color: id,
+            version: 0,
         }
     }
 
@@ -29,11 +31,12 @@ impl Device {
         let target_update = self.updates.iter().find(|n| n.version == target_version);
         if let Some(target_update) = target_update {
             self.services = target_update.services.clone();
+            self.version = target_update.version;
             self.updates = self
                 .updates
                 .clone()
                 .into_iter()
-                .filter(|n| n.version >= target_version)
+                .filter(|n| n.version >= self.version)
                 .collect();
         }
     }

@@ -3,6 +3,8 @@ use super::dependency::Dependency;
 use super::device::Device;
 use super::service::Service;
 use super::update::Update;
+use super::subsystem::Subsystem;
+use super::cartesian_iterator::CartesianIterator;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -194,7 +196,7 @@ impl SmartHome {
     }
 }
 
-
+//Actual Methods on a Smart Home
 impl SmartHome {
     pub fn get_device(&self, index: usize) -> &Device {
         self.devices.get(index).unwrap()
@@ -223,5 +225,28 @@ impl SmartHome {
         }
     }
 
-    pub fn update_smart(&mut self) {}
+    pub fn update_smart(&mut self) {
+        let subsystems = Subsystem::find_subsystems(self); 
+        for element in subsystems{
+            println!("{} devices in Subsystem", element.devices.len());
+            let mut v = Vec::new();
+            for device in &element.devices{
+                let mut d = Vec::new();
+                for update in &device.updates{
+                    d.push(update.services.clone());
+                }
+                v.push(d);
+            }
+            let cartesian_iterator: CartesianIterator<usize> = CartesianIterator::new(v);
+            let mut amount = 0;
+            for _i in cartesian_iterator{
+                //println!("{:?}",_i);
+                amount += 1;
+            }
+            println!("{}", amount);
+        }   
+        
+        //configurations.dedup();
+        //println!("{:?}",configurations);
+    }
 }

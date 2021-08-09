@@ -2,18 +2,18 @@ use smart_holmes::smart_home::*;
 
 fn generate_smart_home() -> SmartHome {
     let service_config = ServiceConfig {
-        amount_services: 1000,
+        amount_services: 500,
     };
     let device_config = DeviceConfig {
-        amount_devices: 600,
+        amount_devices: 50,
         services_per_device: 5,
     };
     let dependency_config = DependencyConfig {
-        amount_dependencies: 5600,
-        device_per_dependency: 5,
-        service_per_dependency: 10,
+        amount_dependencies: 25,
+        device_per_dependency: 2,
+        service_per_dependency: 3,
     };
-    let update_config = UpdateConfig { amount_updates: 7 };
+    let update_config = UpdateConfig { amount_updates: 3 };
 
     let smart_home_config = SmartHomeConfig::new(
         service_config,
