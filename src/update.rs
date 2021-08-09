@@ -36,11 +36,11 @@ impl Update {
     fn add_service(service_set: &mut Vec<Service>, new_service_id: usize) {
         if service_set
             .iter()
-            .filter(|x| x.id == new_service_id)
+            .filter(|x| **x == new_service_id)
             .count()
             == 0
         {
-            service_set.push(Service::new(new_service_id));
+            service_set.push(new_service_id);
         }
     }
 

@@ -24,6 +24,14 @@ impl Device {
     pub fn remove_irrelevant_updates(&mut self) {
         self.updates.dedup();
     }
+
+    pub fn update(&mut self, target_version: usize){
+        let target_update = self.updates.iter().filter(|n| n.version == target_version).next();
+        if let Some(target_update) = target_update{
+            self.services = target_update.services.clone();
+            self.updates = self.updates.clone().into_iter().filter(|n| n.version >= target_version).collect();
+        }
+    }
 }
 
 impl PartialOrd for Device {

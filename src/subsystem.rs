@@ -5,6 +5,7 @@ use crate::service::Service;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt;
+use std::fmt::Display;
 
 #[derive(Debug, Clone)]
 pub struct Subsystem {
@@ -30,7 +31,7 @@ impl Subsystem {
     fn new(devices: Vec<Device>) -> Subsystem {
         Subsystem { devices }
     }
-
+/*
     pub fn get_dependency_hashmap(smart_home: &SmartHome) -> HashMap<usize, Vec<usize>> {
         let mut dependencies = HashMap::new();
         for dependency in &smart_home.dependencies {
@@ -109,7 +110,7 @@ impl Subsystem {
         subsystems
     }
 
-    pub fn partial_cartesian<T: Clone>(a: Vec<Vec<T>>, b: Vec<T>) -> Vec<Vec<T>> {
+    pub fn partial_cartesian(a: Vec<Vec<Vec<Service>>>, b: Vec<Vec<Service>>) -> Vec<Vec<Vec<Service>>> {
         a.into_iter().flat_map(|xs| {
             b.iter().cloned().map(|y| {
                 let mut vec = xs.clone();
@@ -119,10 +120,10 @@ impl Subsystem {
         }).collect()
     }
     
-    pub fn cartesian_product<T: Clone>(lists: &Vec<Vec<T>>) -> Vec<Vec<T>> {
+    pub fn cartesian_product(lists: Vec<Vec<Vec<Service>>>) -> Vec<Vec<Vec<Service>>> {
         match lists.split_first() {
             Some((first, rest)) => {
-                let init: Vec<Vec<T>> = first.iter().cloned().map(|n| vec![n]).collect();
+                let init: Vec<Vec<Vec<Service>>> = first.iter().cloned().map(|n| vec![n]).collect();
     
                 rest.iter().cloned().fold(init, |vec, list| {
                     Subsystem::partial_cartesian(vec, list)
@@ -134,13 +135,11 @@ impl Subsystem {
         }
     }
     
-    pub fn print_cartesian_product(lists: &Vec<Vec<Service>>) {
-        let mut products = Subsystem::cartesian_product(&lists);
+    pub fn print_cartesian_product(lists: Vec<Vec<Vec<Service>>>) {
+        let products = Subsystem::cartesian_product(lists);
     
-        for product in products.iter_mut() {
-            product.sort();
-            product.dedup();
-            let product_str: Vec<_> = product.iter().map(|n| format!("{}", n)).collect();
+        for product in products.iter() {
+            let product_str: Vec<_> = product.iter().map(|n| format!("{:?}", n)).collect();
             let line = product_str.join(" ");
             println!("{}", line);
         }
@@ -156,9 +155,9 @@ impl Subsystem {
             }
             configurations.push(service_sets);
         }
-        Subsystem::print_cartesian_product(&configurations[0]);
-        
+        let products = Subsystem::cartesian_product(configurations);
     }
+    */
 }
 
 #[cfg(test)]
