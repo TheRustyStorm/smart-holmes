@@ -1,10 +1,10 @@
 extern crate serde;
+use super::cartesian_iterator::CartesianIterator;
 use super::dependency::Dependency;
 use super::device::Device;
 use super::service::Service;
-use super::update::Update;
 use super::subsystem::Subsystem;
-use super::cartesian_iterator::CartesianIterator;
+use super::update::Update;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -19,7 +19,6 @@ pub struct SmartHome {
     pub dependencies: Vec<Dependency>,
     pub devices: Vec<Device>,
 }
-
 
 pub struct ServiceConfig {
     pub amount_services: usize,
@@ -62,8 +61,6 @@ impl SmartHomeConfig {
         }
     }
 }
-
-
 
 //Methods to create a smart home
 impl SmartHome {
@@ -139,12 +136,12 @@ impl SmartHome {
                 devices.len(),
                 dependency_config.device_per_dependency,
             );
-    
+
             let mut dependency_device_indices: Vec<usize> = Vec::new();
             for i in x {
                 dependency_device_indices.push(i);
             }
-    
+
             let mut service_ids_of_devices = HashSet::new();
             for device_index in &dependency_device_indices {
                 let device = devices.get(*device_index).unwrap();
@@ -176,7 +173,6 @@ impl SmartHome {
         }
         dependencies
     }
-    
 
     pub fn new(config: SmartHomeConfig) -> SmartHome {
         println!(
@@ -226,26 +222,26 @@ impl SmartHome {
     }
 
     pub fn update_smart(&mut self) {
-        let subsystems = Subsystem::find_subsystems(self); 
-        for element in subsystems{
+        let subsystems = Subsystem::find_subsystems(self);
+        for element in subsystems {
             println!("{} devices in Subsystem", element.devices.len());
             let mut v = Vec::new();
-            for device in &element.devices{
+            for device in &element.devices {
                 let mut d = Vec::new();
-                for update in &device.updates{
+                for update in &device.updates {
                     d.push(update.services.clone());
                 }
                 v.push(d);
             }
             let cartesian_iterator: CartesianIterator<usize> = CartesianIterator::new(v);
             let mut amount = 0;
-            for _i in cartesian_iterator{
+            for _i in cartesian_iterator {
                 //println!("{:?}",_i);
                 amount += 1;
             }
             println!("{}", amount);
-        }   
-        
+        }
+
         //configurations.dedup();
         //println!("{:?}",configurations);
     }

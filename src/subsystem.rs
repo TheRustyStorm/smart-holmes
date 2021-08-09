@@ -12,14 +12,14 @@ pub struct Subsystem {
 }
 
 #[derive(Debug, Clone)]
-pub struct ConfigurationState{
+pub struct ConfigurationState {
     pub device_id: usize,
-    pub updates: Vec<Update>
+    pub updates: Vec<Update>,
 }
 
-impl ConfigurationState{
-    fn new(device_id: usize, updates: Vec<Update>) -> ConfigurationState{
-        ConfigurationState{device_id, updates}
+impl ConfigurationState {
+    fn new(device_id: usize, updates: Vec<Update>) -> ConfigurationState {
+        ConfigurationState { device_id, updates }
     }
 }
 
@@ -165,7 +165,7 @@ impl Subsystem {
         }
     }
 
-    pub fn find_configurations(subsystem: &Subsystem) -> Vec<Vec<Vec<usize>>>{
+    pub fn find_configurations(subsystem: &Subsystem) -> Vec<Vec<Vec<usize>>> {
         let mut configurations = Vec::new();
         for device in &subsystem.devices {
             let mut service_sets = vec![device.services.clone()];
@@ -176,7 +176,6 @@ impl Subsystem {
         }
         Subsystem::cartesian_product(configurations)
     }
-
 }
 
 #[cfg(test)]
