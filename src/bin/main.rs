@@ -5,13 +5,13 @@ fn generate_smart_home() -> SmartHome {
         amount_services: 500,
     };
     let device_config = DeviceConfig {
-        amount_devices: 50,
-        services_per_device: 5,
+        amount_devices: 5000,
+        services_per_device: 10,
     };
     let dependency_config = DependencyConfig {
-        amount_dependencies: 25,
+        amount_dependencies: 2500,
         device_per_dependency: 2,
-        service_per_dependency: 3,
+        service_per_dependency: 4,
     };
     let update_config = UpdateConfig { amount_updates: 3 };
 
@@ -41,24 +41,24 @@ fn main() {
     smart_home_all.update_all();
     println!("Updating all");
     println!(
-        "{} working dependencies",
-        smart_home_all.amount_fullfilled_dependencies()
+        "{} working dependencies \t Update Score: {}",
+        smart_home_all.amount_fullfilled_dependencies(), smart_home_all.update_score()
     );
 
     let mut smart_home_random = smart_home.clone();
     smart_home_random.update_random();
     println!("Updating random");
     println!(
-        "{} working dependencies",
-        smart_home_random.amount_fullfilled_dependencies()
+        "{} working dependencies \t Update Score: {}",
+        smart_home_random.amount_fullfilled_dependencies(), smart_home_random.update_score()
     );
 
-    let mut smart_home_smart = smart_home;
+    let mut smart_home_smart = smart_home.clone();
     smart_home_smart.update_smart();
     println!("Updating Smart");
     println!(
-        "{} working dependencies",
-        smart_home_smart.amount_fullfilled_dependencies()
+        "{} working dependencies \t Update Score: {}",
+        smart_home_smart.amount_fullfilled_dependencies(), smart_home_smart.update_score()
     );
 
     // let systems = Subsystem::find_subsystems(&mut smart_home);

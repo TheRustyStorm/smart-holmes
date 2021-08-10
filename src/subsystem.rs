@@ -81,13 +81,13 @@ impl Subsystem {
             for devices in hashmap.values() {
                 let mut min_of_dependency = usize::MAX;
                 for device_index in devices {
-                    let device = &mut smart_home.devices[*device_index];
+                    let device = smart_home.get_device_mut(*device_index);
                     if min_of_dependency > device.color {
                         min_of_dependency = device.color;
                     }
                 }
                 for device_index in devices {
-                    let device = &mut smart_home.devices[*device_index];
+                    let device = smart_home.get_device_mut(*device_index);
                     if device.color > min_of_dependency {
                         device.color = min_of_dependency;
                         has_changed = true;
@@ -98,10 +98,6 @@ impl Subsystem {
                 break;
             }
         }
-        println!(
-            "{} subsystems found",
-            Subsystem::subsystem_count(smart_home)
-        );
     }
 
     pub fn find_subsystems(smart_home: &mut SmartHome) -> Vec<Subsystem> {
@@ -120,61 +116,6 @@ impl Subsystem {
             subsystems.push(Subsystem::new(color_vec));
         }
         subsystems
-    }
-
-    pub fn partial_cartesian(
-        a: Vec<Vec<Vec<Service>>>,
-        b: Vec<Vec<Service>>,
-    ) -> Vec<Vec<Vec<Service>>> {
-        a.into_iter()
-            .flat_map(|xs| {
-                b.iter()
-                    .cloned()
-                    .map(|y| {
-                        let mut vec = xs.clone();
-                        vec.push(y);
-                        vec
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .collect()
-    }
-
-    pub fn cartesian_product(lists: Vec<Vec<Vec<Service>>>) -> Vec<Vec<Vec<Service>>> {
-        match lists.split_first() {
-            Some((first, rest)) => {
-                let init: Vec<Vec<Vec<Service>>> = first.iter().cloned().map(|n| vec![n]).collect();
-
-                rest.iter()
-                    .cloned()
-                    .fold(init, Subsystem::partial_cartesian)
-            }
-            None => {
-                vec![]
-            }
-        }
-    }
-
-    pub fn print_cartesian_product(lists: Vec<Vec<Vec<Service>>>) {
-        let products = Subsystem::cartesian_product(lists);
-
-        for product in products.iter() {
-            let product_str: Vec<_> = product.iter().map(|n| format!("{:?}", n)).collect();
-            let line = product_str.join(" ");
-            println!("{}", line);
-        }
-    }
-
-    pub fn find_configurations(subsystem: &Subsystem) -> Vec<Vec<Vec<usize>>> {
-        let mut configurations = Vec::new();
-        for device in &subsystem.devices {
-            let mut service_sets = vec![device.services.clone()];
-            for update in &device.updates {
-                service_sets.push(update.services.clone());
-            }
-            configurations.push(service_sets);
-        }
-        Subsystem::cartesian_product(configurations)
     }
 }
 

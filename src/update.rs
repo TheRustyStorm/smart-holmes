@@ -2,10 +2,16 @@ use super::service::Service;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+/**
+ * We assume that only one service is added or removed per update.
+ * Therefore we have an Option for a single service, instead of a Vec.
+ */
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Update {
     pub version: usize,
     pub services: Vec<Service>,
+    pub added_services: Vec<Service>,
+    pub removed_services: Vec<Service>,
 }
 
 impl PartialEq for Update {
@@ -21,21 +27,25 @@ impl PartialEq for Update {
 }
 
 impl Update {
-    pub fn new(version: usize, services: Vec<Service>) -> Update {
-        Update { version, services }
+    pub fn new(version: usize, services: Vec<Service>, added_services: Vec<Service>, removed_services: Vec<Service>) -> Update {
+        Update { version, services, added_services, removed_services}
     }
 
     pub fn map_to_update(device_services: &[Service]) -> Update {
         Update {
             version: 1,
             services: device_services.to_vec(),
+            added_services: Vec::new(), 
+            removed_services: Vec::new() 
         }
     }
 
-    fn remove_service(service_set: &mut Vec<Service>, service_id: usize) {
+    fn remove_service(service_set: &mut Vec<Service>, service_id: usize) -> bool{
         if service_set.len() > 1 && service_id < service_set.len() {
             service_set.remove(service_id);
+            return true;
         }
+        false
     }
 
     fn add_service(service_set: &mut Vec<Service>, new_service_id: usize) {
@@ -49,18 +59,24 @@ impl Update {
         let mut rng = rand::thread_rng();
         let random_dice = rng.gen_range(0..6); // 1/6 chance of removing a service, 1/6 chance of adding a service
         let mut service_set = update.services.clone();
+        let mut removed_services = update.removed_services.clone();
+        let mut added_services = update.added_services.clone();
         match random_dice {
             0 => {
                 let remove_index = rng.gen_range(0..service_set.len());
-                Update::remove_service(&mut service_set, remove_index);
+                let removed_service_id = service_set[remove_index];
+                if Update::remove_service(&mut service_set, remove_index){
+                    removed_services.push(removed_service_id);
+                }
             }
             1 => {
                 let new_service_id = rng.gen_range(0..services.len());
+                added_services.push(new_service_id);
                 Update::add_service(&mut service_set, new_service_id)
             }
             _ => (),
         }
-        Update::new(version, service_set)
+        Update::new(version, service_set, added_services, removed_services)
     }
 }
 
@@ -94,7 +110,9 @@ mod tests {
     fn test_add_new_service() {
         let mut update = Update {
             version: 1,
-            services: vec![Service::new(1), Service::new(2), Service::new(3)],
+            services: vec![1, 2, 3],
+            added_services: Vec::new(),
+            removed_services: Vec::new()
         };
         Update::add_service(&mut update.services, 4);
         assert_eq!(4, update.services.len());
@@ -104,7 +122,9 @@ mod tests {
     fn test_add_existing_service() {
         let mut update = Update {
             version: 1,
-            services: vec![Service::new(1), Service::new(2), Service::new(3)],
+            services: vec![1,2,3],
+            added_services: Vec::new(),
+            removed_services: Vec::new()
         };
         Update::add_service(&mut update.services, 2);
         assert_eq!(3, update.services.len());
@@ -114,7 +134,9 @@ mod tests {
     fn test_remove_existing_service() {
         let mut update = Update {
             version: 1,
-            services: vec![Service::new(1), Service::new(2), Service::new(3)],
+            services: vec![1,2,3],
+            added_services: Vec::new(),
+            removed_services: Vec::new()
         };
         let index = 2;
         Update::remove_service(&mut update.services, index);
@@ -125,7 +147,9 @@ mod tests {
     fn test_remove_not_existing_service() {
         let mut update = Update {
             version: 1,
-            services: vec![Service::new(1), Service::new(2), Service::new(3)],
+            services: vec![1,2,3],
+            added_services: Vec::new(),
+            removed_services: Vec::new()
         };
         let index = 3; //out of bounds
         Update::remove_service(&mut update.services, index);
