@@ -232,7 +232,7 @@ impl SmartHome {
 
     fn update_removes_service_of_dependency(update: &Update, dependency: &Dependency) -> bool {
         for removed_service in &update.removed_services{
-            if dependency.services.contains(&removed_service) {
+            if dependency.services.contains(removed_service) {
                 return true;
             }
         }

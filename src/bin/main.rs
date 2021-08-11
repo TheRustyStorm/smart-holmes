@@ -53,7 +53,7 @@ fn main() {
         smart_home_random.amount_fullfilled_dependencies(), smart_home_random.update_score()
     );
 
-    let mut smart_home_smart = smart_home.clone();
+    let mut smart_home_smart = smart_home;
     smart_home_smart.update_smart();
     println!("Updating Smart");
     println!(

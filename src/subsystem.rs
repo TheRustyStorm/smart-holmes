@@ -1,9 +1,7 @@
 use crate::device::Device;
-use crate::service::Service;
 use crate::smart_home::SmartHome;
 use crate::update::Update;
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::fmt;
 use indicatif::ProgressBar;
 
@@ -16,12 +14,6 @@ pub struct Subsystem {
 pub struct ConfigurationState {
     pub device_id: usize,
     pub updates: Vec<Update>,
-}
-
-impl ConfigurationState {
-    fn new(device_id: usize, updates: Vec<Update>) -> ConfigurationState {
-        ConfigurationState { device_id, updates }
-    }
 }
 
 impl fmt::Display for Subsystem {
@@ -55,22 +47,6 @@ impl Subsystem {
             dependencies_hashmap.insert(dependency.index, devices);
         }
         dependencies_hashmap
-    }
-
-    fn subsystem_count(smart_home: &SmartHome) -> usize {
-        let mut set = HashSet::new();
-        for device in &smart_home.devices {
-            set.insert(device.color);
-        }
-        set.len()
-    }
-
-    fn _subsystem_color_set(smart_home: &SmartHome) -> HashSet<usize> {
-        let mut set = HashSet::new();
-        for device in &smart_home.devices {
-            set.insert(device.color);
-        }
-        set
     }
 
     fn color_devices(smart_home: &mut SmartHome) {
