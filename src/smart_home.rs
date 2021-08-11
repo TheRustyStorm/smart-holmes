@@ -11,6 +11,8 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufWriter;
+use indicatif::ProgressBar;
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SmartHome {
@@ -239,7 +241,10 @@ impl SmartHome {
 
     pub fn update_smart(&mut self) {
         let mut subsystems = Subsystem::find_subsystems(self);
+        println!("Finding best Updates for Subsystem");
+        let bar = ProgressBar::new(subsystems.len() as u64);
         for subsystem in &mut subsystems {
+            bar.inc(1);
             let mut dependencies_of_subsystem = Vec::new();
             for dependency in &self.dependencies {
                 for device in &subsystem.devices {

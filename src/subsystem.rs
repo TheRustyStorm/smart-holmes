@@ -5,6 +5,7 @@ use crate::update::Update;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt;
+use indicatif::ProgressBar;
 
 #[derive(Debug, Clone)]
 pub struct Subsystem {
@@ -107,11 +108,14 @@ impl Subsystem {
         devices.sort_by(|a, b| a.partial_cmp(b).unwrap());
         let mut sorted_devices = devices;
         let mut color;
+        println!("Finding Subsystems");
+        let bar = ProgressBar::new(sorted_devices.len() as u64);
         while !sorted_devices.is_empty() {
             color = sorted_devices[0].color;
             let mut color_vec = Vec::new();
             while !sorted_devices.is_empty() && color == sorted_devices[0].color {
                 color_vec.push(sorted_devices.remove(0));
+                bar.inc(1);
             }
             subsystems.push(Subsystem::new(color_vec));
         }
