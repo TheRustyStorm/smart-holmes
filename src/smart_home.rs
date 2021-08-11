@@ -255,7 +255,7 @@ impl SmartHome {
                     let mut is_safe = true;
                     for dependency_index in &dependencies_of_subsystem {
                         let dependency = &self.dependencies[*dependency_index];
-                        if !SmartHome::update_removes_service_of_dependency(update, dependency) {
+                        if SmartHome::update_removes_service_of_dependency(update, dependency) {
                             is_safe = false;
                         }
                     }
