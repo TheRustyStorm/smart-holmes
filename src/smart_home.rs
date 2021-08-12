@@ -196,7 +196,14 @@ impl SmartHome {
 //Actual Methods on a Smart Home
 impl SmartHome {
     pub fn update_score(&self) -> usize {
-        self.devices.iter().map(|x| x.version).sum()
+        self.dependencies.iter()
+            .filter(|x| x.is_fullfilled(&self.devices))
+            .map(
+                |x| x.device_indices.iter()
+                    .map(|x| &self.devices[*x])
+                    .map(|x| x.version)
+                    .sum::<usize>())
+            .sum()
     }
 
     pub fn get_device(&self, index: usize) -> &Device {
