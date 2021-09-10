@@ -5,12 +5,12 @@ fn generate_smart_home() -> SmartHome {
         amount_services: 5000,
     };
     let device_config = DeviceConfig {
-        amount_devices: 50000,
+        amount_devices: 500000,
         services_per_device: 15,
     };
     let dependency_config = DependencyConfig {
-        amount_dependencies: 25000,
-        device_per_dependency: 3,
+        amount_dependencies: 250000,
+        device_per_dependency: 2,
         service_per_dependency: 5,
     };
     let update_config = UpdateConfig { amount_updates: 3 };
@@ -38,24 +38,24 @@ fn main() {
     );
 
     let mut smart_home_all = smart_home.clone();
-    smart_home_all.update_all();
     println!("Updating all");
+    smart_home_all.update_all();
     println!(
         "{} working dependencies \t Update Score: {}",
         smart_home_all.amount_fullfilled_dependencies(), smart_home_all.update_score()
     );
 
     let mut smart_home_random = smart_home.clone();
-    smart_home_random.update_random();
     println!("Updating random");
+    smart_home_random.update_random();
     println!(
         "{} working dependencies \t Update Score: {}",
         smart_home_random.amount_fullfilled_dependencies(), smart_home_random.update_score()
     );
 
     let mut smart_home_smart = smart_home;
-    smart_home_smart.update_smart();
     println!("Updating Smart");
+    smart_home_smart.update_smart();
     println!(
         "{} working dependencies \t Update Score: {}",
         smart_home_smart.amount_fullfilled_dependencies(), smart_home_smart.update_score()

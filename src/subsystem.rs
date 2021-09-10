@@ -86,11 +86,13 @@ impl Subsystem {
         let mut color;
         println!("Finding Subsystems");
         let bar = ProgressBar::new(sorted_devices.len() as u64);
-        while !sorted_devices.is_empty() {
-            color = sorted_devices[0].color;
+        let mut index = 0;
+        while index < sorted_devices.len() {
+            color = sorted_devices[index].color;
             let mut color_vec = Vec::new();
-            while !sorted_devices.is_empty() && color == sorted_devices[0].color {
-                color_vec.push(sorted_devices.remove(0));
+            while index < sorted_devices.len() && color == sorted_devices[index].color {
+                color_vec.push(sorted_devices[index].clone());
+                index += 1;
                 bar.inc(1);
             }
             subsystems.push(Subsystem::new(color_vec));
