@@ -1,7 +1,7 @@
 use rand::Rng;
 
 #[derive(Debug)]
-struct MarkovState{
+pub struct MarkovState{
     pub transition_propabilities: Vec<usize>,
 }
 
@@ -10,16 +10,16 @@ impl MarkovState{
         let mut transition_propabilities: Vec<usize> = Vec::new();
         let mut rng = rand::thread_rng();
         for _ in 0..amount_states{
-            transition_propabilities.push(rng.gen_range(0..10)*rng.gen_range(0..10));
+            transition_propabilities.push(rng.gen_range(0..10));
         }
         MarkovState{transition_propabilities}
     }
 }
 
 #[derive(Debug)]
-struct MarkovModel{
-    states: Vec<MarkovState>,
-    current_state_index: usize,
+pub struct MarkovModel{
+    pub states: Vec<MarkovState>,
+    pub current_state_index: usize,
 }
 
 impl MarkovModel{
@@ -35,16 +35,16 @@ impl MarkovModel{
 
     pub fn step(&mut self){
         let transitions = &self.states.get(self.current_state_index).unwrap().transition_propabilities;
-        let mut sum:usize = transitions.iter().sum();
+        let lotteryrange:usize = transitions.iter().sum();
         let mut rng = rand::thread_rng();
-        let new_index = rng.gen_range(0..sum);
+        let mut winning_ticket = rng.gen_range(0..lotteryrange);
         let transitions = &self.states.get(self.current_state_index).unwrap().transition_propabilities;
         for (index, value) in transitions.iter().enumerate(){
-            if *value >= new_index {
+            if *value >= winning_ticket {
                 self.current_state_index = index;
                 break;
             }
-            sum -= value;
+            winning_ticket -= value;
         }
     }
 }
@@ -63,6 +63,15 @@ mod tests {
     #[test]
     fn test_init_markov_model(){
         let mut markov_model = MarkovModel::new(4);
+        for _ in 0..10{
+            markov_model.step();
+        }
+    }
+
+    #[test]
+    fn test_dependency_markov_model(){
+        let mut markov_model = MarkovModel::new(5);
+        markov_model.states[1].transition_propabilities[2] = 999;
         for _ in 0..100{
             markov_model.step();
             println!("{}",markov_model.current_state_index);

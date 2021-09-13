@@ -5,5 +5,7 @@ pub mod markov_model;
 pub mod service;
 pub mod smart_home;
 pub mod subsystem;
+pub mod transition_matrix;
 pub mod update;
 pub mod update_configuration;
+pub mod user;
