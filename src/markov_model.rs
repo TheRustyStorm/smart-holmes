@@ -10,7 +10,13 @@ impl MarkovState{
         let mut transition_propabilities: Vec<usize> = Vec::new();
         let mut rng = rand::thread_rng();
         for _ in 0..amount_states{
-            transition_propabilities.push(rng.gen_range(0..10));
+            let mut probability = rng.gen_range(0..10);
+            if probability < 6{
+                probability = 0;
+            }else{
+                probability -= 6;
+            }
+            transition_propabilities.push(probability);
         }
         MarkovState{transition_propabilities}
     }

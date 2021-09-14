@@ -39,10 +39,10 @@ fn main() {
     let mut user = User::new(&smart_home, amount_implicit_dependencies_by_user);
     let mut transition_matrix = TransitionMatrix::new(smart_home.devices.len());
     let mut current_device;
-    for _ in 0..500{
+    for _ in 0..50{
         user.choose_random_new_device();
         current_device = user.currently_used_device();
-        for _ in 0..100000{
+        for _ in 0..100{
             user.step();
             let next_device = user.currently_used_device();
             if next_device != current_device{
@@ -53,13 +53,15 @@ fn main() {
     }
     transition_matrix.print();
     for row in 0..smart_home.devices.len(){
-        let average_transitions = transition_matrix.average_value_at_row(row);
-        for column in 0..smart_home.devices.len(){
-            let value = transition_matrix.get_at(row, column);
-            if value > average_transitions*2{
-                println!("Detected implicit dependency from {} to {}", row, column);
-                let new_dependency = Dependency::new(vec![row,column],smart_home.get_device(column).services.clone(), smart_home.dependencies.len());
-                smart_home.dependencies.push(new_dependency);
+        let sum_of_row = transition_matrix.sum_at_row(row);
+        if sum_of_row > 10{
+            for column in 0..smart_home.devices.len(){
+                let value = transition_matrix.get_at(row, column);
+                if value*2 > sum_of_row{
+                    println!("Detected implicit dependency from {} to {}", row, column);
+                    let new_dependency = Dependency::new(vec![row,column],smart_home.get_device(column).services.clone(), smart_home.dependencies.len());
+                    smart_home.dependencies.push(new_dependency);
+                }
             }
         }
     }

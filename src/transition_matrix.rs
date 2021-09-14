@@ -27,19 +27,11 @@ impl TransitionMatrix{
         self.matrix[row*self.columns + column]
     }
 
-    pub fn average_value_at_row(&self, row: usize) -> usize{
+    pub fn sum_at_row(&self, row: usize) -> usize{
         let mut sum = 0;
-        let mut count = 0;
         for i in self.columns*row..self.columns*(row+1){
-            if self.matrix[i] > 0 {
-                sum += self.matrix[i];
-                count += 1;
-            }
+            sum += self.matrix[i];
         }
-        if count > 0{
-            sum/count
-        } else{
-            0
-        }
+        sum
     }
 }
