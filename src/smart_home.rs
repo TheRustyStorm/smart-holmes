@@ -4,17 +4,16 @@ use super::device::Device;
 use super::service::Service;
 use super::subsystem::Subsystem;
 use super::update::Update;
+use indicatif::ProgressBar;
 use rand::seq::SliceRandom;
 use rand::Rng;
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufWriter;
 use std::sync::{Arc, Mutex};
-use indicatif::ProgressBar;
-use rayon::prelude::*;
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SmartHome {
@@ -190,7 +189,10 @@ impl SmartHome {
         println!("Generating {} devices", config.device_config.amount_devices);
         let devices =
             SmartHome::generate_devices(&config.device_config, &config.update_config, &services);
-        println!("Generating {} dependencies", config.dependency_config.amount_dependencies);
+        println!(
+            "Generating {} dependencies",
+            config.dependency_config.amount_dependencies
+        );
         let dependencies = SmartHome::generate_dependencies(&config.dependency_config, &devices);
         SmartHome {
             services,
@@ -203,13 +205,17 @@ impl SmartHome {
 //Actual Methods on a Smart Home
 impl SmartHome {
     pub fn update_score(&self) -> usize {
-        self.dependencies.iter()
+        self.dependencies
+            .iter()
             .filter(|dependency| dependency.is_fullfilled(&self.devices))
-            .map(
-                |dependency| dependency.device_indices.iter()
+            .map(|dependency| {
+                dependency
+                    .device_indices
+                    .iter()
                     .map(|index| self.get_device(*index))
                     .map(|device| device.version)
-                    .sum::<usize>())
+                    .sum::<usize>()
+            })
             .sum()
     }
 
@@ -245,7 +251,7 @@ impl SmartHome {
     }
 
     fn update_removes_service_of_dependency(update: &Update, dependency: &Dependency) -> bool {
-        for removed_service in &update.removed_services{
+        for removed_service in &update.removed_services {
             if dependency.services.contains(removed_service) {
                 return true;
             }
@@ -275,7 +281,8 @@ impl SmartHome {
                 for update in &device.updates {
                     let mut is_safe = true;
                     for dependency_index in &dependencies_of_subsystem {
-                        let dependency = &smart_home_lock.lock().unwrap().dependencies[*dependency_index];
+                        let dependency =
+                            &smart_home_lock.lock().unwrap().dependencies[*dependency_index];
                         if SmartHome::update_removes_service_of_dependency(update, dependency) {
                             is_safe = false;
                         }
@@ -285,29 +292,35 @@ impl SmartHome {
                     }
                 }
                 if let Some(best_update) = best_update {
-                    smart_home_lock.lock().unwrap().get_device_mut(device.id).update(best_update);
+                    smart_home_lock
+                        .lock()
+                        .unwrap()
+                        .get_device_mut(device.id)
+                        .update(best_update);
                 }
             }
         });
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::smart_home::*;
     use crate::update::*;
-    
+
     #[test]
     fn test_update_that_removes_service() {
         let update = Update {
             version: 1,
             services: vec![1, 2, 3],
             added_services: Vec::new(),
-            removed_services: vec![4]
+            removed_services: vec![4],
         };
-        let dependency = Dependency::new(vec![1,2,3], vec![4],1);
-        assert_eq!(true, SmartHome::update_removes_service_of_dependency(&update, &dependency));
+        let dependency = Dependency::new(vec![1, 2, 3], vec![4], 1);
+        assert_eq!(
+            true,
+            SmartHome::update_removes_service_of_dependency(&update, &dependency)
+        );
     }
 
     #[test]
@@ -316,9 +329,12 @@ mod tests {
             version: 1,
             services: vec![1, 2, 3],
             added_services: Vec::new(),
-            removed_services: vec![6]
+            removed_services: vec![6],
         };
-        let dependency = Dependency::new(vec![1,2,3], vec![4],1);
-        assert_eq!(false, SmartHome::update_removes_service_of_dependency(&update, &dependency));
+        let dependency = Dependency::new(vec![1, 2, 3], vec![4], 1);
+        assert_eq!(
+            false,
+            SmartHome::update_removes_service_of_dependency(&update, &dependency)
+        );
     }
 }

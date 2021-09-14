@@ -1,8 +1,7 @@
+use smart_holmes::dependency::Dependency;
 use smart_holmes::smart_home::*;
 use smart_holmes::transition_matrix::*;
 use smart_holmes::user::User;
-use smart_holmes::dependency::Dependency;
-
 
 fn generate_smart_home() -> SmartHome {
     let service_config = ServiceConfig {
@@ -10,10 +9,10 @@ fn generate_smart_home() -> SmartHome {
     };
     let device_config = DeviceConfig {
         amount_devices: 20,
-        services_per_device: 3,
+        services_per_device: 5,
     };
     let dependency_config = DependencyConfig {
-        amount_dependencies: 10,
+        amount_dependencies: 30,
         device_per_dependency: 2,
         service_per_dependency: 5,
     };
@@ -39,27 +38,31 @@ fn main() {
     let mut user = User::new(&smart_home, amount_implicit_dependencies_by_user);
     let mut transition_matrix = TransitionMatrix::new(smart_home.devices.len());
     let mut current_device;
-    for _ in 0..50{
+    for _ in 0..50 {
         user.choose_random_new_device();
         current_device = user.currently_used_device();
-        for _ in 0..100{
+        for _ in 0..100 {
             user.step();
             let next_device = user.currently_used_device();
-            if next_device != current_device{
+            if next_device != current_device {
                 transition_matrix.increase(current_device, next_device);
             }
             current_device = next_device;
         }
     }
-    transition_matrix.print();
-    for row in 0..smart_home.devices.len(){
+    //transition_matrix.print();
+    for row in 0..smart_home.devices.len() {
         let sum_of_row = transition_matrix.sum_at_row(row);
-        if sum_of_row > 10{
-            for column in 0..smart_home.devices.len(){
+        if sum_of_row > 10 {
+            for column in 0..smart_home.devices.len() {
                 let value = transition_matrix.get_at(row, column);
-                if value*2 > sum_of_row{
+                if value * 2 > sum_of_row {
                     println!("Detected implicit dependency from {} to {}", row, column);
-                    let new_dependency = Dependency::new(vec![row,column],smart_home.get_device(column).services.clone(), smart_home.dependencies.len());
+                    let new_dependency = Dependency::new(
+                        vec![row, column],
+                        smart_home.get_device(column).services.clone(),
+                        smart_home.dependencies.len(),
+                    );
                     smart_home.dependencies.push(new_dependency);
                 }
             }
@@ -76,7 +79,8 @@ fn main() {
     smart_home_all.update_all();
     println!(
         "{} working dependencies \t Update Score: {}",
-        smart_home_all.amount_fullfilled_dependencies(), smart_home_all.update_score()
+        smart_home_all.amount_fullfilled_dependencies(),
+        smart_home_all.update_score()
     );
 
     let mut smart_home_random = smart_home.clone();
@@ -84,7 +88,8 @@ fn main() {
     smart_home_random.update_random();
     println!(
         "{} working dependencies \t Update Score: {}",
-        smart_home_random.amount_fullfilled_dependencies(), smart_home_random.update_score()
+        smart_home_random.amount_fullfilled_dependencies(),
+        smart_home_random.update_score()
     );
 
     let mut smart_home_smart = smart_home;
@@ -92,7 +97,8 @@ fn main() {
     smart_home_smart.update_smart();
     println!(
         "{} working dependencies \t Update Score: {}",
-        smart_home_smart.amount_fullfilled_dependencies(), smart_home_smart.update_score()
+        smart_home_smart.amount_fullfilled_dependencies(),
+        smart_home_smart.update_score()
     );
 
     // let systems = Subsystem::find_subsystems(&mut smart_home);

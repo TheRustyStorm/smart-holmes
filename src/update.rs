@@ -27,20 +27,30 @@ impl PartialEq for Update {
 }
 
 impl Update {
-    pub fn new(version: usize, services: Vec<Service>, added_services: Vec<Service>, removed_services: Vec<Service>) -> Update {
-        Update { version, services, added_services, removed_services}
+    pub fn new(
+        version: usize,
+        services: Vec<Service>,
+        added_services: Vec<Service>,
+        removed_services: Vec<Service>,
+    ) -> Update {
+        Update {
+            version,
+            services,
+            added_services,
+            removed_services,
+        }
     }
 
     pub fn map_to_update(device_services: &[Service]) -> Update {
         Update {
             version: 1,
             services: device_services.to_vec(),
-            added_services: Vec::new(), 
-            removed_services: Vec::new() 
+            added_services: Vec::new(),
+            removed_services: Vec::new(),
         }
     }
 
-    fn remove_service(service_set: &mut Vec<Service>, service_id: usize) -> bool{
+    fn remove_service(service_set: &mut Vec<Service>, service_id: usize) -> bool {
         if service_set.len() > 1 && service_id < service_set.len() {
             service_set.remove(service_id);
             return true;
@@ -65,7 +75,7 @@ impl Update {
             0 => {
                 let remove_index = rng.gen_range(0..service_set.len());
                 let removed_service_id = service_set[remove_index];
-                if Update::remove_service(&mut service_set, remove_index){
+                if Update::remove_service(&mut service_set, remove_index) {
                     removed_services.push(removed_service_id);
                 }
             }
@@ -112,7 +122,7 @@ mod tests {
             version: 1,
             services: vec![1, 2, 3],
             added_services: Vec::new(),
-            removed_services: Vec::new()
+            removed_services: Vec::new(),
         };
         Update::add_service(&mut update.services, 4);
         assert_eq!(4, update.services.len());
@@ -122,9 +132,9 @@ mod tests {
     fn test_add_existing_service() {
         let mut update = Update {
             version: 1,
-            services: vec![1,2,3],
+            services: vec![1, 2, 3],
             added_services: Vec::new(),
-            removed_services: Vec::new()
+            removed_services: Vec::new(),
         };
         Update::add_service(&mut update.services, 2);
         assert_eq!(3, update.services.len());
@@ -134,9 +144,9 @@ mod tests {
     fn test_remove_existing_service() {
         let mut update = Update {
             version: 1,
-            services: vec![1,2,3],
+            services: vec![1, 2, 3],
             added_services: Vec::new(),
-            removed_services: Vec::new()
+            removed_services: Vec::new(),
         };
         let index = 2;
         Update::remove_service(&mut update.services, index);
@@ -147,9 +157,9 @@ mod tests {
     fn test_remove_not_existing_service() {
         let mut update = Update {
             version: 1,
-            services: vec![1,2,3],
+            services: vec![1, 2, 3],
             added_services: Vec::new(),
-            removed_services: Vec::new()
+            removed_services: Vec::new(),
         };
         let index = 3; //out of bounds
         Update::remove_service(&mut update.services, index);

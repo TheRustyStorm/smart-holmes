@@ -1,9 +1,9 @@
 use crate::device::Device;
 use crate::smart_home::SmartHome;
 use crate::update::Update;
+use indicatif::ProgressBar;
 use std::collections::HashMap;
 use std::fmt;
-use indicatif::ProgressBar;
 
 #[derive(Debug, Clone)]
 pub struct Subsystem {
@@ -23,9 +23,9 @@ impl fmt::Display for Subsystem {
         // stream: `f`. Returns `fmt::Result` which indicates whether the
         // operation succeeded or failed. Note that `write!` uses syntax which
         // is very similar to `println!`.
-        write!(f, "{} ", self.devices.len());
+        write!(f, "{} ", self.devices.len()).unwrap();
         for device in &self.devices {
-            write!(f, "{} ", device.id);
+            write!(f, "{} ", device.id).unwrap();
         }
         Ok(())
     }
@@ -82,7 +82,7 @@ impl Subsystem {
         Subsystem::color_devices(smart_home);
         let mut devices = smart_home.devices.clone();
         devices.sort_by(|a, b| a.partial_cmp(b).unwrap());
-        let mut sorted_devices = devices;
+        let sorted_devices = devices;
         let mut color;
         println!("Finding Subsystems");
         let bar = ProgressBar::new(sorted_devices.len() as u64);
