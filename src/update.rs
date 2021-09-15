@@ -43,7 +43,7 @@ impl Update {
 
     pub fn map_to_update(device_services: &[Service]) -> Update {
         Update {
-            version: 1,
+            version: 2,
             services: device_services.to_vec(),
             added_services: Vec::new(),
             removed_services: Vec::new(),

@@ -19,7 +19,7 @@ impl Device {
             updates,
             id,
             color: id,
-            version: 0,
+            version: 1,
         }
     }
 
