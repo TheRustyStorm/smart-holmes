@@ -20,7 +20,7 @@ fn generate_smart_home() -> SmartHome {
         device_per_dependency: 2,
         service_per_dependency: 5,
     };
-    let update_config = UpdateConfig { amount_updates: 50 };
+    let update_config = UpdateConfig { amount_updates: 60 };
 
     let smart_home_config = SmartHomeConfig::new(
         service_config,
@@ -114,7 +114,9 @@ fn main() {
         sum_random += smart_home_random.update_score();
         sum_smart += smart_home_smart.update_score();
     }
-    println!("{} {} {} {}", sum_none/1000, sum_all/1000, sum_random/1000, sum_smart/1000);
+    println!("{} {} {} {}", sum_smart/1000, sum_all/1000, sum_random/1000, sum_none/1000);
+    //println!("All: {} Smart: {}", sum_all/1000, sum_smart/1000);
+    
     // let systems = Subsystem::find_subsystems(&mut smart_home);
     // println!("{}", systems[0]);
     // Subsystem::find_configurations(systems[0].clone());
