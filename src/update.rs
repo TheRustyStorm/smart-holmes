@@ -113,7 +113,7 @@ mod tests {
     #[test]
     fn test_create_update() {
         let update = update_creator();
-        assert_eq!(1, update.version);
+        assert_eq!(2, update.version);
     }
 
     #[test]
