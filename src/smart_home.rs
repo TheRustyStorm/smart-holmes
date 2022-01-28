@@ -92,6 +92,9 @@ impl SmartHome {
         services: &[Service],
     ) -> Vec<Update> {
         let mut updates: Vec<Update> = Vec::new();
+        if update_config.amount_updates == 0{
+            return updates;
+        }
         let update = Update::map_to_update(services_on_device);
         updates.push(update);
         for i in 0..update_config.amount_updates {
@@ -120,10 +123,10 @@ impl SmartHome {
         services: &[Service],
     ) -> Vec<Device> {
         let mut devices = Vec::new();
-        let bar = ProgressBar::new(device_config.amount_devices as u64);
+        //let bar = ProgressBar::new(device_config.amount_devices as u64);
         for id in 0..device_config.amount_devices {
             let device = SmartHome::generate_device(id, device_config, update_config, services);
-            bar.inc(1);
+         //   bar.inc(1);
             devices.push(device);
         }
         devices
@@ -134,7 +137,7 @@ impl SmartHome {
         devices: &[Device],
     ) -> Vec<Dependency> {
         let mut dependencies = Vec::new();
-        let bar = ProgressBar::new(dependency_config.amount_dependencies as u64);
+        //let bar = ProgressBar::new(dependency_config.amount_dependencies as u64);
         for _ in 0..dependency_config.amount_dependencies {
             let x = rand::seq::index::sample(
                 &mut rand::thread_rng(),
@@ -172,7 +175,7 @@ impl SmartHome {
             );
             if dependency.is_fullfilled(devices) {
                 dependencies.push(dependency);
-                bar.inc(1);
+         //       bar.inc(1);
             } else {
                 println!("NOT FULFILLED");
             }
@@ -181,18 +184,9 @@ impl SmartHome {
     }
 
     pub fn new(config: SmartHomeConfig) -> SmartHome {
-        println!(
-            "Generating {} services",
-            config.service_config.amount_services
-        );
         let services = SmartHome::generate_services(&config.service_config);
-        println!("Generating {} devices", config.device_config.amount_devices);
         let devices =
             SmartHome::generate_devices(&config.device_config, &config.update_config, &services);
-        println!(
-            "Generating {} dependencies",
-            config.dependency_config.amount_dependencies
-        );
         let dependencies = SmartHome::generate_dependencies(&config.dependency_config, &devices);
         SmartHome {
             services,
@@ -236,17 +230,21 @@ impl SmartHome {
 
     pub fn update_all(&mut self) {
         for device in &mut self.devices {
-            let target_version = device.updates[device.updates.len() - 1].version;
-            device.update(target_version);
+            if device.updates.len() > 0{
+                let target_version = device.updates[device.updates.len() - 1].version;
+                device.update(target_version);
+            }
         }
     }
 
     pub fn update_random(&mut self) {
         let mut rng = rand::thread_rng();
         for device in &mut self.devices {
-            let random_update_index = rng.gen_range(0..device.updates.len());
-            let target_version = device.updates[random_update_index].version;
-            device.update(target_version);
+            if device.updates.len()>0{
+                let random_update_index = rng.gen_range(0..device.updates.len());
+                let target_version = device.updates[random_update_index].version;
+                device.update(target_version);
+            }
         }
     }
 
@@ -261,12 +259,11 @@ impl SmartHome {
 
     pub fn update_smart(&mut self) {
         let mut subsystems = Subsystem::find_subsystems(self);
-        println!("Finding best Updates for Subsystem");
-        let bar = ProgressBar::new(subsystems.len() as u64);
+        //let bar = ProgressBar::new(subsystems.len() as u64);
         let smart_home = Arc::new(Mutex::new(self));
         subsystems.par_iter_mut().for_each(|subsystem| {
             let smart_home_lock = Arc::clone(&smart_home);
-            bar.inc(1);
+        //    bar.inc(1);
             let mut dependencies_of_subsystem = Vec::new();
             for dependency in &smart_home_lock.lock().unwrap().dependencies {
                 for device in &subsystem.devices {

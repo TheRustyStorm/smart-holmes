@@ -84,8 +84,7 @@ impl Subsystem {
         devices.sort_by(|a, b| a.partial_cmp(b).unwrap());
         let sorted_devices = devices;
         let mut color;
-        println!("Finding Subsystems");
-        let bar = ProgressBar::new(sorted_devices.len() as u64);
+        //let bar = ProgressBar::new(sorted_devices.len() as u64);
         let mut index = 0;
         while index < sorted_devices.len() {
             color = sorted_devices[index].color;
@@ -93,7 +92,7 @@ impl Subsystem {
             while index < sorted_devices.len() && color == sorted_devices[index].color {
                 color_vec.push(sorted_devices[index].clone());
                 index += 1;
-                bar.inc(1);
+        //        bar.inc(1);
             }
             subsystems.push(Subsystem::new(color_vec));
         }

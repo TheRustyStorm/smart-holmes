@@ -67,7 +67,9 @@ impl Update {
     pub fn generate_new_update(update: &Update, services: &[Service]) -> Update {
         let version = update.version + 1;
         let mut rng = rand::thread_rng();
-        let random_dice = rng.gen_range(0..5); 
+        //set to 10 (1/10) for 20% (10+10) mutation chance, 
+        //20 (1/20) for 10% (5+5) mutation chance etc.
+        let random_dice = rng.gen_range(0..10); 
         let mut service_set = update.services.clone();
         let mut removed_services = update.removed_services.clone();
         let mut added_services = update.added_services.clone();

@@ -11,7 +11,7 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "smart_holmes_binary"
-path = "src/bin/main.rs"
+path = "src/bin/new_main.rs"
 
 [dependencies]
 rand = "*"
