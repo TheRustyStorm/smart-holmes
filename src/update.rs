@@ -2,10 +2,6 @@ use super::service::Service;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-/**
- * We assume that only one service is added or removed per update.
- * Therefore we have an Option for a single service, instead of a Vec.
- */
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Update {
     pub version: usize,
@@ -78,14 +74,14 @@ impl Update {
         let mut removed_services = update.removed_services.clone();
         let mut added_services = update.added_services.clone();
         match random_dice {
-            0 => {
+            0_u32 => {
                 let remove_index = rng.gen_range(0..service_set.len());
                 let removed_service_id = service_set[remove_index];
                 if Self::remove_service(&mut service_set, remove_index) {
                     removed_services.push(removed_service_id);
                 }
             }
-            1 => {
+            1_u32 => {
                 let new_service_id = rng.gen_range(0..services.len());
                 added_services.push(new_service_id);
                 Self::add_service(&mut service_set, new_service_id);

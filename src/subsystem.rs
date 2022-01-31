@@ -16,12 +16,7 @@ pub struct ConfigurationState {
 }
 
 impl fmt::Display for Subsystem {
-    // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Write strictly the first element into the supplied output
-        // stream: `f`. Returns `fmt::Result` which indicates whether the
-        // operation succeeded or failed. Note that `write!` uses syntax which
-        // is very similar to `println!`.
         write!(f, "{} ", self.devices.len()).unwrap();
         for device in &self.devices {
             write!(f, "{} ", device.id).unwrap();
@@ -31,10 +26,13 @@ impl fmt::Display for Subsystem {
 }
 
 impl Subsystem {
+
+    /// Create a new subsystem from a Vec of Devices
     fn new(devices: Vec<Device>) -> Self {
         Self { devices }
     }
 
+    /// Create a Hashmap that maps from a dependency index to all device ids that are part of the dependency
     #[must_use]
     pub fn get_dependency_hashmap(smart_home: &SmartHome) -> HashMap<usize, Vec<usize>> {
         let mut dependencies_hashmap = HashMap::new();
@@ -49,6 +47,7 @@ impl Subsystem {
         dependencies_hashmap
     }
 
+    /// Assign all devices that are chained to the same dependency-subsystem the same color.
     fn color_devices(smart_home: &mut SmartHome) {
         let hashmap = Self::get_dependency_hashmap(smart_home);
         let mut has_changed;
@@ -56,6 +55,7 @@ impl Subsystem {
             has_changed = false;
 
             for devices in hashmap.values() {
+                // find the minimum color
                 let mut min_of_dependency = usize::MAX;
                 for device_index in devices {
                     let device = smart_home.get_device_mut(*device_index);
@@ -63,6 +63,7 @@ impl Subsystem {
                         min_of_dependency = device.color;
                     }
                 }
+                //assign it to each device
                 for device_index in devices {
                     let device = smart_home.get_device_mut(*device_index);
                     if device.color > min_of_dependency {
@@ -71,17 +72,20 @@ impl Subsystem {
                     }
                 }
             }
+            // We are done if no changes happen
             if !has_changed {
                 break;
             }
         }
     }
 
+
+    /// Find all subsystems in the smart home
     pub fn find_subsystems(smart_home: &mut SmartHome) -> Vec<Self> {
         let mut subsystems: Vec<Self> = Vec::new();
         Self::color_devices(smart_home);
-        let mut devices = smart_home.devices.clone();
-        devices.sort();
+        let mut devices = smart_home.devices.clone(); //do not do this on the original, remember we are using indices in this array
+        devices.sort(); //using the color to compare
         let sorted_devices = devices;
         let mut color;
         let mut index = 0;

@@ -152,10 +152,9 @@ impl SmartHome {
         services: &[Service],
     ) -> Vec<Device> {
         let mut devices = Vec::new();
-        //let bar = ProgressBar::new(device_config.amount_devices as u64);
         for id in 0..device_config.amount_devices {
             let device = Self::generate_device(id, device_config, update_config, services);
-            //   bar.inc(1);
+            //device.remove_irrelevant_updates();
             devices.push(device);
         }
         devices
@@ -222,10 +221,8 @@ impl SmartHome {
             devices,
         }
     }
-}
 
 //Actual Methods on a Smart Home
-impl SmartHome {
     #[must_use]
     pub fn update_score(&self) -> usize {
         self.dependencies

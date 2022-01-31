@@ -14,6 +14,8 @@ pub struct Device {
 
 impl Device {
 
+    /// Create a new Device, using a Vec of services that the device offers, a Vec of updates that it has and its id. 
+    /// color is a field which will be used for finding subsystems, by assigning a subsystem of devices the same color.
     #[must_use]
     pub fn new(services: Vec<Service>, updates: Vec<Update>, id: usize) -> Self {
         Self {
@@ -25,10 +27,13 @@ impl Device {
         }
     }
 
+    /// Deduplicate updates that offer the same service sets
+    /// Is not used in this simulation
     pub fn remove_irrelevant_updates(&mut self) {
         self.updates.dedup();
     }
 
+    /// Update a device to the target version, if it is available
     pub fn update(&mut self, target_version: usize) {
         let target_update = self.updates.iter().find(|n| n.version == target_version);
         if let Some(target_update) = target_update {
