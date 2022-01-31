@@ -12,15 +12,18 @@ pub struct Dependency {
 }
 
 impl Dependency {
-    pub fn new(device_indices: Vec<usize>, services: Vec<Service>, index: usize) -> Dependency {
-        Dependency {
+
+    #[must_use]
+    pub fn new(device_indices: Vec<usize>, services: Vec<Service>, index: usize) -> Self {
+        Self {
             device_indices,
             services,
             index,
         }
     }
 
-    pub fn is_fullfilled_with_services(&self, services: HashSet<Service>) -> bool {
+    #[must_use]
+    pub fn is_fullfilled_with_services(&self, services: &HashSet<Service>) -> bool {
         for service in &self.services {
             if services.get(service) == None {
                 return false;
@@ -29,14 +32,25 @@ impl Dependency {
         true
     }
 
+    ///
+    /// # Panics
+    /// Panics if the device index that the dependency stores is out of the range of devices array
+    /// 
+    #[must_use]
     pub fn is_fullfilled(&self, devices: &[Device]) -> bool {
         for service in &self.services {
             let mut is_present = false;
             for index in &self.device_indices {
-                let device = devices.get(*index).unwrap();
-                for available_service in &device.services {
-                    if *available_service == *service {
-                        is_present = true;
+                match devices.get(*index){
+                    Some(device) => {
+                        for available_service in &device.services {
+                            if *available_service == *service {
+                                is_present = true;
+                            }
+                        }
+                    },
+                    None => {
+                        panic!("Couldn't get device with index {} ", index);
                     }
                 }
             }

@@ -1,7 +1,6 @@
 use crate::device::Device;
 use crate::smart_home::SmartHome;
 use crate::update::Update;
-use indicatif::ProgressBar;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -32,10 +31,11 @@ impl fmt::Display for Subsystem {
 }
 
 impl Subsystem {
-    fn new(devices: Vec<Device>) -> Subsystem {
-        Subsystem { devices }
+    fn new(devices: Vec<Device>) -> Self {
+        Self { devices }
     }
 
+    #[must_use]
     pub fn get_dependency_hashmap(smart_home: &SmartHome) -> HashMap<usize, Vec<usize>> {
         let mut dependencies_hashmap = HashMap::new();
         for dependency in &smart_home.dependencies {
@@ -50,7 +50,7 @@ impl Subsystem {
     }
 
     fn color_devices(smart_home: &mut SmartHome) {
-        let hashmap = Subsystem::get_dependency_hashmap(smart_home);
+        let hashmap = Self::get_dependency_hashmap(smart_home);
         let mut has_changed;
         loop {
             has_changed = false;
@@ -77,14 +77,13 @@ impl Subsystem {
         }
     }
 
-    pub fn find_subsystems(smart_home: &mut SmartHome) -> Vec<Subsystem> {
-        let mut subsystems: Vec<Subsystem> = Vec::new();
-        Subsystem::color_devices(smart_home);
+    pub fn find_subsystems(smart_home: &mut SmartHome) -> Vec<Self> {
+        let mut subsystems: Vec<Self> = Vec::new();
+        Self::color_devices(smart_home);
         let mut devices = smart_home.devices.clone();
-        devices.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        devices.sort();
         let sorted_devices = devices;
         let mut color;
-        //let bar = ProgressBar::new(sorted_devices.len() as u64);
         let mut index = 0;
         while index < sorted_devices.len() {
             color = sorted_devices[index].color;
@@ -92,9 +91,8 @@ impl Subsystem {
             while index < sorted_devices.len() && color == sorted_devices[index].color {
                 color_vec.push(sorted_devices[index].clone());
                 index += 1;
-        //        bar.inc(1);
             }
-            subsystems.push(Subsystem::new(color_vec));
+            subsystems.push(Self::new(color_vec));
         }
         subsystems
     }
@@ -120,7 +118,7 @@ mod tests {
         };
         let update_config = UpdateConfig { amount_updates: 6 };
 
-        let smart_home_config = SmartHomeConfig::new(
+        let smart_home_config = Config::new(
             service_config,
             device_config,
             dependency_config,

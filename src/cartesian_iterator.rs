@@ -5,10 +5,12 @@ pub struct CartesianIterator<T> {
 }
 
 impl<T> CartesianIterator<T> {
-    pub fn new(lists: Vec<Vec<Vec<T>>>) -> CartesianIterator<T> {
+
+    #[must_use]
+    pub fn new(lists: Vec<Vec<Vec<T>>>) -> Self {
         let indices_lists_size = lists.len();
         let indices_lists = vec![0; indices_lists_size];
-        CartesianIterator {
+        Self {
             lists,
             indices_lists,
             overflow: false,
@@ -23,11 +25,10 @@ impl<T> CartesianIterator<T> {
             if self.indices_lists[index_index] < self.lists[index_index].len() - 1 {
                 self.indices_lists[index_index] += 1;
                 break;
-            } else {
-                self.indices_lists[index_index] = 0;
-                if index_index == 0 && self.indices_lists[index_index] == 0 {
-                    self.overflow = true;
-                }
+            } 
+            self.indices_lists[index_index] = 0;
+            if index_index == 0 && self.indices_lists[index_index] == 0 {
+                self.overflow = true;
             }
         }
         true

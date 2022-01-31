@@ -27,13 +27,15 @@ impl PartialEq for Update {
 }
 
 impl Update {
+
+    #[must_use]
     pub fn new(
         version: usize,
         services: Vec<Service>,
         added_services: Vec<Service>,
         removed_services: Vec<Service>,
-    ) -> Update {
-        Update {
+    ) -> Self {
+        Self {
             version,
             services,
             added_services,
@@ -41,8 +43,9 @@ impl Update {
         }
     }
 
-    pub fn map_to_update(device_services: &[Service]) -> Update {
-        Update {
+    #[must_use]
+    pub fn map_to_update(device_services: &[Service]) -> Self {
+        Self {
             version: 2,
             services: device_services.to_vec(),
             added_services: Vec::new(),
@@ -64,7 +67,8 @@ impl Update {
         }
     }
 
-    pub fn generate_new_update(update: &Update, services: &[Service]) -> Update {
+    #[must_use]
+    pub fn generate_new_update(update: &Self, services: &[Service]) -> Self {
         let version = update.version + 1;
         let mut rng = rand::thread_rng();
         //set to 10 (1/10) for 20% (10+10) mutation chance, 
@@ -77,18 +81,18 @@ impl Update {
             0 => {
                 let remove_index = rng.gen_range(0..service_set.len());
                 let removed_service_id = service_set[remove_index];
-                if Update::remove_service(&mut service_set, remove_index) {
+                if Self::remove_service(&mut service_set, remove_index) {
                     removed_services.push(removed_service_id);
                 }
             }
             1 => {
                 let new_service_id = rng.gen_range(0..services.len());
                 added_services.push(new_service_id);
-                Update::add_service(&mut service_set, new_service_id)
+                Self::add_service(&mut service_set, new_service_id);
             }
             _ => (),
         }
-        Update::new(version, service_set, added_services, removed_services)
+        Self::new(version, service_set, added_services, removed_services)
     }
 }
 

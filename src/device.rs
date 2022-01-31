@@ -13,8 +13,10 @@ pub struct Device {
 }
 
 impl Device {
-    pub fn new(services: Vec<Service>, updates: Vec<Update>, id: usize) -> Device {
-        Device {
+
+    #[must_use]
+    pub fn new(services: Vec<Service>, updates: Vec<Update>, id: usize) -> Self {
+        Self {
             services,
             updates,
             id,
@@ -48,8 +50,16 @@ impl PartialOrd for Device {
     }
 }
 
+impl Ord for Device {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.color.cmp(&other.color)
+    }
+}
+
 impl PartialEq for Device {
     fn eq(&self, other: &Self) -> bool {
         self.color == other.color
     }
 }
+
+impl Eq for Device { }
