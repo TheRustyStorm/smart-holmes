@@ -93,7 +93,7 @@ fn generate_smart_home(input: usize) -> SmartHome {
 fn main() {
     let mut result_stash = ResultStash::new();
 
-    let num_threads = 10;
+    let num_threads = 20;
     let num_measurements = 1000;
     // set min, max and set of the variable to iterate over
     for input in (0..=100).step_by(5) {
