@@ -90,7 +90,7 @@ fn generate_smart_home(input: usize) -> SmartHome {
     SmartHome::new(&smart_home_config)
 }
 
-fn main() {
+fn measure_simulation(){
     let mut result_stash = ResultStash::new();
 
     println!("Iterating over updates per device");
@@ -171,6 +171,45 @@ fn main() {
             *sum_smart.lock().unwrap() / num_measurements,
         );
     }
-    
+
     result_stash.print();
+
+}
+
+fn generate_ridiculously_bigsmart_home() -> SmartHome {
+    let service_config = ServiceConfig {
+        amount_services: 5000,
+    };
+    let device_config = DeviceConfig {
+        amount_devices: 100000,    
+        services_per_device: 100,
+    };
+    let dependency_config = DependencyConfig {
+        amount_dependencies: 50000, 
+        device_per_dependency: 20,
+        service_per_dependency: 10,
+    };
+    let update_config = UpdateConfig {
+        amount_updates: 10000,
+    };
+
+    let smart_home_config = Config::new(
+        service_config,
+        device_config,
+        dependency_config,
+        update_config,
+    );
+    SmartHome::new(&smart_home_config)
+}
+
+
+fn benchmark_a_big_smart_home(){
+    let mut smart_home = generate_ridiculously_bigsmart_home();
+    smart_home.update_smart();
+    println!("Update Score: {}", smart_home.update_score());
+}
+
+fn main() {
+    measure_simulation();
+    //benchmark_a_big_smart_home();
 }
