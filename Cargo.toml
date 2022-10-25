@@ -2,7 +2,7 @@
 name = "smart_holmes"
 version = "0.1.0"
 authors = ["Peter <peter.zdankin@uni-due.de>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -11,9 +11,10 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "smart_holmes_binary"
-path = "src/bin/main.rs"
+path = "src/bin/new_main.rs"
 
 [dependencies]
-rand = "*"
+rand = "0.8.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+rayon = "1.5.1"
