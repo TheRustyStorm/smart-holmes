@@ -8,7 +8,6 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use core::num;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufReader;
@@ -43,7 +42,7 @@ pub struct UpdateConfig {
 
 pub struct Config {
     service_config: ServiceConfig,
-    device_config: DeviceConfig,
+    pub device_config: DeviceConfig,
     dependency_config: DependencyConfig,
     update_config: UpdateConfig,
 }
@@ -278,12 +277,22 @@ impl SmartHome {
     }
 
     #[must_use]
-    pub fn amount_links_between_devices(&self) -> usize{
+    pub fn amount_links_between_devices_mesh(&self) -> usize {
         self.dependencies
             .iter()
             .map(|dependency| dependency.number_active_devices(&self.devices))
             .filter(|number_active_devices| number_active_devices > &0)
             .map(|number_active_devices| number_active_devices * (number_active_devices - 1) / 2)
+            .sum()
+    }
+
+    #[must_use]
+    pub fn amount_links_between_devices_line(&self) -> usize {
+        self.dependencies
+            .iter()
+            .map(|dependency| dependency.number_active_devices(&self.devices))
+            .filter(|number_active_devices| number_active_devices > &0)
+            .map(|number_active_devices| number_active_devices - 1)
             .sum()
     }
 

@@ -12,7 +12,6 @@ pub struct Dependency {
 }
 
 impl Dependency {
-
     #[must_use]
     pub fn new(device_indices: Vec<usize>, services: Vec<Service>, index: usize) -> Self {
         Self {
@@ -32,8 +31,12 @@ impl Dependency {
         true
     }
 
+    ///
+    /// # Panics
+    /// Panics if the index should be out of bounds of the devices array
+    ///
     #[must_use]
-    pub fn number_active_devices(&self, devices: &[Device]) -> usize{
+    pub fn number_active_devices(&self, devices: &[Device]) -> usize {
         self.device_indices
             .iter()
             .map(|index| devices.get(*index).unwrap())
@@ -41,8 +44,12 @@ impl Dependency {
             .count()
     }
 
+    ///
+    /// # Panics
+    /// Panics if the index should be out of bounds of the devices array
+    ///
     #[must_use]
-    pub fn number_inactive_devices(&self, devices: &[Device]) -> usize{
+    pub fn number_inactive_devices(&self, devices: &[Device]) -> usize {
         self.device_indices
             .iter()
             .map(|index| devices.get(*index).unwrap())
@@ -53,22 +60,22 @@ impl Dependency {
     ///
     /// # Panics
     /// Panics if the device index that the dependency stores is out of the range of devices array
-    /// 
+    ///
     #[must_use]
     pub fn is_fullfilled(&self, devices: &[Device]) -> bool {
         for service in &self.services {
             let mut is_present = false;
             for index in &self.device_indices {
-                match devices.get(*index){
+                match devices.get(*index) {
                     Some(device) => {
-                        if device.is_active{
+                        if device.is_active {
                             for available_service in &device.services {
                                 if *available_service == *service {
                                     is_present = true;
                                 }
                             }
                         }
-                    },
+                    }
                     None => {
                         panic!("Couldn't get device with index {} ", index);
                     }
