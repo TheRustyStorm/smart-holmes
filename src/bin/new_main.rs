@@ -1,4 +1,3 @@
-
 use smart_holmes::smart_home::*;
 use std::sync::{Arc, Mutex};
 
@@ -98,7 +97,7 @@ fn generate_smart_home(input: usize) -> SmartHome {
 
 #[allow(dead_code)]
 
-fn experiment_updates(){
+fn experiment_updates() {
     let mut result_stash = ResultStash::new();
 
     let num_threads = 10;
@@ -124,7 +123,6 @@ fn experiment_updates(){
                 let m_random = Arc::clone(&sum_random);
                 let m_smart = Arc::clone(&sum_smart);
                 let handle = std::thread::spawn(move || {
-
                     let smart_home = generate_smart_home(input);
                     let mut none = m_none.lock().unwrap();
                     *none += smart_home.update_score();
@@ -174,7 +172,7 @@ fn experiment_updates(){
     result_stash.print();
 }
 
-fn experiment_removed_devices(){
+fn experiment_removed_devices() {
     let service_config = ServiceConfig {
         amount_services: 50, //default 50
     };
@@ -184,12 +182,10 @@ fn experiment_removed_devices(){
     };
     let dependency_config = DependencyConfig {
         amount_dependencies: 50,   //default 50
-        device_per_dependency: 2,  //default 2
+        device_per_dependency: 3,  //default 2
         service_per_dependency: 5, //default 5
     };
-    let update_config = UpdateConfig {
-        amount_updates: 5,
-    }; //default 5
+    let update_config = UpdateConfig { amount_updates: 5 }; //default 5
 
     let smart_home_config = Config::new(
         service_config,
@@ -197,16 +193,34 @@ fn experiment_removed_devices(){
         dependency_config,
         update_config,
     );
-    let mut smart_home = SmartHome::new(&smart_home_config);
-    println!("Broken Devices \tFulfilled Dependencies \tLinks between Devices");
-    print!("0\t\t");
-    print!("{}\t\t\t",smart_home.amount_fullfilled_dependencies());
-    println!("{} ",smart_home.amount_links_between_devices());
-    for i in 0..smart_home.devices.len(){    
-        smart_home.devices[i].is_active = false;
-        println!("{}\t\t{}\t\t\t{} ",i+1, smart_home.amount_fullfilled_dependencies(), smart_home.amount_links_between_devices());
+
+    let mut fulfilled_vec: Vec<usize> = vec![0; smart_home_config.device_config.amount_devices + 1];
+    let mut links_mesh_vec: Vec<usize> = vec![0; smart_home_config.device_config.amount_devices + 1];
+    let mut links_line_vec: Vec<usize> = vec![0; smart_home_config.device_config.amount_devices + 1];
+    let num_repetitions = 1000;
+
+    for _ in 0..num_repetitions {
+        let mut smart_home = SmartHome::new(&smart_home_config);
+        fulfilled_vec[0] += smart_home.amount_fullfilled_dependencies();
+        links_mesh_vec[0] += smart_home.amount_links_between_devices_mesh();
+        links_line_vec[0] += smart_home.amount_links_between_devices_line();
+        for i in 0..smart_home.devices.len() {
+            smart_home.devices[i].is_active = false;
+            fulfilled_vec[i + 1 ] += smart_home.amount_fullfilled_dependencies();
+            links_mesh_vec[i + 1] += smart_home.amount_links_between_devices_mesh();
+            links_line_vec[i + 1] += smart_home.amount_links_between_devices_line();
+        }
     }
-    
+    println!("Broken Devices \tFulfilled Dependencies \tLinks between Devices (M)\tLinks between Devices (L)");
+    for i in 0..smart_home_config.device_config.amount_devices + 1 {
+        println!(
+            "{}\t\t{}\t\t\t{}\t\t\t\t{}",
+            i,
+            fulfilled_vec[i] / num_repetitions,
+            links_mesh_vec[i] / num_repetitions,
+            links_line_vec[i] / num_repetitions,
+        );
+    }
 }
 
 fn main() {

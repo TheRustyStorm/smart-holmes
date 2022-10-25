@@ -14,7 +14,6 @@ pub struct Device {
 }
 
 impl Device {
-
     #[must_use]
     pub fn new(services: Vec<Service>, updates: Vec<Update>, id: usize) -> Self {
         Self {
@@ -23,7 +22,7 @@ impl Device {
             id,
             color: id,
             version: 1,
-            is_active: true
+            is_active: true,
         }
     }
 
@@ -64,4 +63,4 @@ impl PartialEq for Device {
     }
 }
 
-impl Eq for Device { }
+impl Eq for Device {}
