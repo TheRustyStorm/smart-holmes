@@ -8,6 +8,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
+use core::num;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufReader;
@@ -274,6 +275,16 @@ impl SmartHome {
             .iter()
             .filter(|&n| n.is_fullfilled(&self.devices))
             .count()
+    }
+
+    #[must_use]
+    pub fn amount_links_between_devices(&self) -> usize{
+        self.dependencies
+            .iter()
+            .map(|dependency| dependency.number_active_devices(&self.devices))
+            .filter(|number_active_devices| number_active_devices > &0)
+            .map(|number_active_devices| number_active_devices * (number_active_devices - 1) / 2)
+            .sum()
     }
 
     pub fn update_all(&mut self) {

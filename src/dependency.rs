@@ -32,6 +32,24 @@ impl Dependency {
         true
     }
 
+    #[must_use]
+    pub fn number_active_devices(&self, devices: &[Device]) -> usize{
+        self.device_indices
+            .iter()
+            .map(|index| devices.get(*index).unwrap())
+            .filter(|device| device.is_active)
+            .count()
+    }
+
+    #[must_use]
+    pub fn number_inactive_devices(&self, devices: &[Device]) -> usize{
+        self.device_indices
+            .iter()
+            .map(|index| devices.get(*index).unwrap())
+            .filter(|device| !device.is_active)
+            .count()
+    }
+
     ///
     /// # Panics
     /// Panics if the device index that the dependency stores is out of the range of devices array
@@ -43,9 +61,11 @@ impl Dependency {
             for index in &self.device_indices {
                 match devices.get(*index){
                     Some(device) => {
-                        for available_service in &device.services {
-                            if *available_service == *service {
-                                is_present = true;
+                        if device.is_active{
+                            for available_service in &device.services {
+                                if *available_service == *service {
+                                    is_present = true;
+                                }
                             }
                         }
                     },

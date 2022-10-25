@@ -10,6 +10,7 @@ pub struct Device {
     pub id: usize,
     pub color: usize,
     pub version: usize,
+    pub is_active: bool,
 }
 
 impl Device {
@@ -22,6 +23,7 @@ impl Device {
             id,
             color: id,
             version: 1,
+            is_active: true
         }
     }
 

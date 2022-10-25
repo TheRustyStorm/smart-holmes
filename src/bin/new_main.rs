@@ -1,6 +1,8 @@
+
 use smart_holmes::smart_home::*;
 use std::sync::{Arc, Mutex};
 
+#[allow(dead_code)]
 
 struct ResultStash {
     pub x: Vec<usize>,
@@ -11,6 +13,8 @@ struct ResultStash {
 }
 
 impl ResultStash {
+    #[allow(dead_code)]
+
     fn new() -> ResultStash {
         ResultStash {
             x: Vec::new(),
@@ -20,6 +24,7 @@ impl ResultStash {
             smart: Vec::new(),
         }
     }
+    #[allow(dead_code)]
 
     fn push_measurements(
         &mut self,
@@ -35,6 +40,7 @@ impl ResultStash {
         self.random.push(random);
         self.none.push(none);
     }
+    #[allow(dead_code)]
 
     fn print(&self) {
         println!("Smart");
@@ -90,7 +96,9 @@ fn generate_smart_home(input: usize) -> SmartHome {
     SmartHome::new(&smart_home_config)
 }
 
-fn main() {
+#[allow(dead_code)]
+
+fn experiment_updates(){
     let mut result_stash = ResultStash::new();
 
     let num_threads = 10;
@@ -164,4 +172,43 @@ fn main() {
         );
     }
     result_stash.print();
+}
+
+fn experiment_removed_devices(){
+    let service_config = ServiceConfig {
+        amount_services: 50, //default 50
+    };
+    let device_config = DeviceConfig {
+        amount_devices: 50,     //default 50
+        services_per_device: 5, //default 5
+    };
+    let dependency_config = DependencyConfig {
+        amount_dependencies: 50,   //default 50
+        device_per_dependency: 2,  //default 2
+        service_per_dependency: 5, //default 5
+    };
+    let update_config = UpdateConfig {
+        amount_updates: 5,
+    }; //default 5
+
+    let smart_home_config = Config::new(
+        service_config,
+        device_config,
+        dependency_config,
+        update_config,
+    );
+    let mut smart_home = SmartHome::new(&smart_home_config);
+    println!("Broken Devices \tFulfilled Dependencies \tLinks between Devices");
+    print!("0\t\t");
+    print!("{}\t\t\t",smart_home.amount_fullfilled_dependencies());
+    println!("{} ",smart_home.amount_links_between_devices());
+    for i in 0..smart_home.devices.len(){    
+        smart_home.devices[i].is_active = false;
+        println!("{}\t\t{}\t\t\t{} ",i+1, smart_home.amount_fullfilled_dependencies(), smart_home.amount_links_between_devices());
+    }
+    
+}
+
+fn main() {
+    experiment_removed_devices();
 }
