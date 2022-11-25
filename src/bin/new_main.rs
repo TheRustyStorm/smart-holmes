@@ -209,16 +209,6 @@ fn generate_ridiculously_bigsmart_home() -> SmartHome {
 }
 
 
-fn benchmark_a_big_smart_home(){
-    let mut smart_home = generate_ridiculously_bigsmart_home();
-    smart_home.update_smart();
-    println!("Update Score: {}", smart_home.update_score());
-}
-
-fn main() {
-    measure_simulation();
-    //benchmark_a_big_smart_home();
-}
 
 fn experiment_removed_devices() {
     let service_config = ServiceConfig {
