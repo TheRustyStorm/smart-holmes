@@ -4,11 +4,11 @@ use std::sync::{Arc, Mutex};
 #[allow(dead_code)]
 
 struct ResultStash {
-    pub x: Vec<usize>,
-    pub none: Vec<usize>,
-    pub all: Vec<usize>,
-    pub random: Vec<usize>,
-    pub smart: Vec<usize>,
+    pub indices: Vec<usize>,
+    pub none_strategy_measurements: Vec<usize>,
+    pub all_strategy_measurements: Vec<usize>,
+    pub random_strategy_measurements: Vec<usize>,
+    pub smart_strategy_measurements: Vec<usize>,
 }
 
 impl ResultStash {
@@ -16,51 +16,51 @@ impl ResultStash {
 
     fn new() -> ResultStash {
         ResultStash {
-            x: Vec::new(),
-            none: Vec::new(),
-            all: Vec::new(),
-            random: Vec::new(),
-            smart: Vec::new(),
+            indices: Vec::new(),
+            none_strategy_measurements: Vec::new(),
+            all_strategy_measurements: Vec::new(),
+            random_strategy_measurements: Vec::new(),
+            smart_strategy_measurements: Vec::new(),
         }
     }
     #[allow(dead_code)]
 
     fn push_measurements(
         &mut self,
-        x: usize,
-        none: usize,
-        all: usize,
-        random: usize,
-        smart: usize,
+        index: usize,
+        none_measurement: usize,
+        all_measurement: usize,
+        random_measurement: usize,
+        smart_measurement: usize,
     ) {
-        self.x.push(x);
-        self.smart.push(smart);
-        self.all.push(all);
-        self.random.push(random);
-        self.none.push(none);
+        self.indices.push(index);
+        self.smart_strategy_measurements.push(smart_measurement);
+        self.all_strategy_measurements.push(all_measurement);
+        self.random_strategy_measurements.push(random_measurement);
+        self.none_strategy_measurements.push(none_measurement);
     }
     #[allow(dead_code)]
 
     fn print(&self) {
         println!("Smart");
-        for index in 0..self.x.len() {
-            print!("({},{})", self.x[index], self.smart[index]);
+        for index in 0..self.indices.len() {
+            print!("({},{})", self.indices[index], self.smart_strategy_measurements[index]);
         }
         println!();
 
         println!("All");
-        for index in 0..self.x.len() {
-            print!("({},{})", self.x[index], self.all[index]);
+        for index in 0..self.indices.len() {
+            print!("({},{})", self.indices[index], self.all_strategy_measurements[index]);
         }
         println!();
         println!("Random");
-        for index in 0..self.x.len() {
-            print!("({},{})", self.x[index], self.random[index]);
+        for index in 0..self.indices.len() {
+            print!("({},{})", self.indices[index], self.random_strategy_measurements[index]);
         }
         println!();
         println!("None");
-        for index in 0..self.x.len() {
-            print!("({},{})", self.x[index], self.none[index]);
+        for index in 0..self.indices.len() {
+            print!("({},{})", self.indices[index], self.none_strategy_measurements[index]);
         }
         println!();
     }
@@ -100,11 +100,14 @@ fn generate_smart_home(input: usize) -> SmartHome {
 fn experiment_updates() {
     let mut result_stash = ResultStash::new();
 
-    let num_threads = 10;
+    println!("Iterating over updates per device");
+    let num_threads = 20;
     let num_measurements = 1000;
     // set min, max and set of the variable to iterate over
     for input in (0..=100).step_by(5) {
         println!("{}", input);
+        
+        //our threadsafe stores
         #[allow(clippy::mutex_atomic)]
         let sum_none = Arc::new(Mutex::new(0));
         #[allow(clippy::mutex_atomic)]
@@ -112,16 +115,19 @@ fn experiment_updates() {
         #[allow(clippy::mutex_atomic)]
         let sum_random = Arc::new(Mutex::new(0));
         #[allow(clippy::mutex_atomic)]
+        
         let sum_smart = Arc::new(Mutex::new(0));
         let mut thread_handles_vec = Vec::with_capacity(num_threads);
 
         for _ in 0..num_threads {
             let mut handles = Vec::with_capacity(num_measurements / num_threads);
             for _ in 0..num_measurements / num_threads {
+
                 let m_none = Arc::clone(&sum_none);
                 let m_all = Arc::clone(&sum_all);
                 let m_random = Arc::clone(&sum_random);
                 let m_smart = Arc::clone(&sum_smart);
+
                 let handle = std::thread::spawn(move || {
                     let smart_home = generate_smart_home(input);
                     let mut none = m_none.lock().unwrap();
@@ -145,14 +151,16 @@ fn experiment_updates() {
                     let mut smart = m_smart.lock().unwrap();
                     *smart += smart_home_smart.update_score();
                 });
+
                 handles.push(handle);
             }
+
             thread_handles_vec.push(handles);
         }
 
-        for h in thread_handles_vec {
-            for hh in h {
-                match hh.join() {
+        for thread_handles in thread_handles_vec {
+            for thread_handle in thread_handles {
+                match thread_handle.join() {
                     Ok(_) => {}
                     Err(e) => {
                         panic!("{:?}", e);
@@ -169,7 +177,47 @@ fn experiment_updates() {
             *sum_smart.lock().unwrap() / num_measurements,
         );
     }
+
     result_stash.print();
+
+}
+
+fn generate_ridiculously_bigsmart_home() -> SmartHome {
+    let service_config = ServiceConfig {
+        amount_services: 5000,
+    };
+    let device_config = DeviceConfig {
+        amount_devices: 100000,    
+        services_per_device: 100,
+    };
+    let dependency_config = DependencyConfig {
+        amount_dependencies: 50000, 
+        device_per_dependency: 20,
+        service_per_dependency: 10,
+    };
+    let update_config = UpdateConfig {
+        amount_updates: 10000,
+    };
+
+    let smart_home_config = Config::new(
+        service_config,
+        device_config,
+        dependency_config,
+        update_config,
+    );
+    SmartHome::new(&smart_home_config)
+}
+
+
+fn benchmark_a_big_smart_home(){
+    let mut smart_home = generate_ridiculously_bigsmart_home();
+    smart_home.update_smart();
+    println!("Update Score: {}", smart_home.update_score());
+}
+
+fn main() {
+    measure_simulation();
+    //benchmark_a_big_smart_home();
 }
 
 fn experiment_removed_devices() {

@@ -12,6 +12,7 @@ pub struct Dependency {
 }
 
 impl Dependency {
+    /// Creates a new Dependency, given a Vec of device indices that are involved, a Vec of service IDs that are required, and the index of this dependency (which is handed from the outside).
     #[must_use]
     pub fn new(device_indices: Vec<usize>, services: Vec<Service>, index: usize) -> Self {
         Self {
@@ -21,6 +22,7 @@ impl Dependency {
         }
     }
 
+    /// Checks if the dependency is fulfilled, given a HashSet of services that are passed to this function
     #[must_use]
     pub fn is_fullfilled_with_services(&self, services: &HashSet<Service>) -> bool {
         for service in &self.services {
@@ -31,7 +33,8 @@ impl Dependency {
         true
     }
 
-    ///
+    /// Checks if this dependency is fulfilled, given an array of Devices
+    /// 
     /// # Panics
     /// Panics if the index should be out of bounds of the devices array
     ///

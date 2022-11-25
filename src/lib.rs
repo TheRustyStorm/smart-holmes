@@ -1,4 +1,14 @@
-#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+#![warn(
+    clippy::all,
+    clippy::complexity,
+    clippy::correctness,
+    clippy::deprecated,
+    clippy::nursery,
+    clippy::pedantic,
+    clippy::perf,
+    clippy::style,
+    clippy::suspicious,
+)]
 
 pub mod cartesian_iterator;
 pub mod dependency;
