@@ -42,7 +42,7 @@ pub struct UpdateConfig {
 
 pub struct Config {
     service_config: ServiceConfig,
-    device_config: DeviceConfig,
+    pub device_config: DeviceConfig,
     dependency_config: DependencyConfig,
     update_config: UpdateConfig,
 }
@@ -271,6 +271,26 @@ impl SmartHome {
             .iter()
             .filter(|&n| n.is_fullfilled(&self.devices))
             .count()
+    }
+
+    #[must_use]
+    pub fn amount_links_between_devices_mesh(&self) -> usize {
+        self.dependencies
+            .iter()
+            .map(|dependency| dependency.number_active_devices(&self.devices))
+            .filter(|number_active_devices| number_active_devices > &0)
+            .map(|number_active_devices| number_active_devices * (number_active_devices - 1) / 2)
+            .sum()
+    }
+
+    #[must_use]
+    pub fn amount_links_between_devices_line(&self) -> usize {
+        self.dependencies
+            .iter()
+            .map(|dependency| dependency.number_active_devices(&self.devices))
+            .filter(|number_active_devices| number_active_devices > &0)
+            .map(|number_active_devices| number_active_devices - 1)
+            .sum()
     }
 
     pub fn update_all(&mut self) {

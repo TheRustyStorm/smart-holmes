@@ -1,6 +1,7 @@
 use smart_holmes::smart_home::*;
 use std::sync::{Arc, Mutex};
 
+#[allow(dead_code)]
 
 struct ResultStash {
     pub indices: Vec<usize>,
@@ -11,6 +12,8 @@ struct ResultStash {
 }
 
 impl ResultStash {
+    #[allow(dead_code)]
+
     fn new() -> ResultStash {
         ResultStash {
             indices: Vec::new(),
@@ -20,6 +23,7 @@ impl ResultStash {
             smart_strategy_measurements: Vec::new(),
         }
     }
+    #[allow(dead_code)]
 
     fn push_measurements(
         &mut self,
@@ -35,6 +39,7 @@ impl ResultStash {
         self.random_strategy_measurements.push(random_measurement);
         self.none_strategy_measurements.push(none_measurement);
     }
+    #[allow(dead_code)]
 
     fn print(&self) {
         println!("Smart");
@@ -90,7 +95,9 @@ fn generate_smart_home(input: usize) -> SmartHome {
     SmartHome::new(&smart_home_config)
 }
 
-fn measure_simulation(){
+#[allow(dead_code)]
+
+fn experiment_updates() {
     let mut result_stash = ResultStash::new();
 
     println!("Iterating over updates per device");
@@ -122,7 +129,6 @@ fn measure_simulation(){
                 let m_smart = Arc::clone(&sum_smart);
 
                 let handle = std::thread::spawn(move || {
-
                     let smart_home = generate_smart_home(input);
                     let mut none = m_none.lock().unwrap();
                     *none += smart_home.update_score();
@@ -212,4 +218,59 @@ fn benchmark_a_big_smart_home(){
 fn main() {
     measure_simulation();
     //benchmark_a_big_smart_home();
+}
+
+fn experiment_removed_devices() {
+    let service_config = ServiceConfig {
+        amount_services: 50, //default 50
+    };
+    let device_config = DeviceConfig {
+        amount_devices: 50,     //default 50
+        services_per_device: 5, //default 5
+    };
+    let dependency_config = DependencyConfig {
+        amount_dependencies: 50,   //default 50
+        device_per_dependency: 3,  //default 2
+        service_per_dependency: 5, //default 5
+    };
+    let update_config = UpdateConfig { amount_updates: 5 }; //default 5
+
+    let smart_home_config = Config::new(
+        service_config,
+        device_config,
+        dependency_config,
+        update_config,
+    );
+
+    let mut fulfilled_vec: Vec<usize> = vec![0; smart_home_config.device_config.amount_devices + 1];
+    let mut links_mesh_vec: Vec<usize> = vec![0; smart_home_config.device_config.amount_devices + 1];
+    let mut links_line_vec: Vec<usize> = vec![0; smart_home_config.device_config.amount_devices + 1];
+    let num_repetitions = 1000;
+
+    for _ in 0..num_repetitions {
+        let mut smart_home = SmartHome::new(&smart_home_config);
+        fulfilled_vec[0] += smart_home.amount_fullfilled_dependencies();
+        links_mesh_vec[0] += smart_home.amount_links_between_devices_mesh();
+        links_line_vec[0] += smart_home.amount_links_between_devices_line();
+        for i in 0..smart_home.devices.len() {
+            smart_home.devices[i].is_active = false;
+            fulfilled_vec[i + 1 ] += smart_home.amount_fullfilled_dependencies();
+            links_mesh_vec[i + 1] += smart_home.amount_links_between_devices_mesh();
+            links_line_vec[i + 1] += smart_home.amount_links_between_devices_line();
+        }
+    }
+    println!("Broken Devices \tFulfilled Dependencies \tLinks between Devices (M)\tLinks between Devices (L)");
+    for i in 0..smart_home_config.device_config.amount_devices + 1 {
+        println!(
+            "{}\t\t{}\t\t\t{}\t\t\t\t{}",
+            i,
+            fulfilled_vec[i] / num_repetitions,
+            links_mesh_vec[i] / num_repetitions,
+            links_line_vec[i] / num_repetitions,
+        );
+    }
+}
+
+fn main() {
+    experiment_removed_devices();
 }

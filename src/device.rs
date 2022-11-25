@@ -10,10 +10,10 @@ pub struct Device {
     pub id: usize,
     pub color: usize,
     pub version: usize,
+    pub is_active: bool,
 }
 
 impl Device {
-
     /// Create a new Device, using a Vec of services that the device offers, a Vec of updates that it has and its id. 
     /// color is a field which will be used for finding subsystems, by assigning a subsystem of devices the same color.
     #[must_use]
@@ -24,6 +24,7 @@ impl Device {
             id,
             color: id,
             version: 1,
+            is_active: true,
         }
     }
 
@@ -67,4 +68,4 @@ impl PartialEq for Device {
     }
 }
 
-impl Eq for Device { }
+impl Eq for Device {}
